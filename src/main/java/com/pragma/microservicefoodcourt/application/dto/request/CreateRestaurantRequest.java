@@ -1,10 +1,12 @@
 package com.pragma.microservicefoodcourt.application.dto.request;
 
 import com.pragma.microservicefoodcourt.application.constant.RequestConstant;
+import lombok.Builder;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+@Builder
 public record CreateRestaurantRequest(
         @NotBlank(message = RequestConstant.MSG_NIT_REQUIRED)
         @Pattern(regexp = RequestConstant.REGEX_ONLY_NUMBERS, message = RequestConstant.MSG_NIT_NUMBER_FORMAT)
