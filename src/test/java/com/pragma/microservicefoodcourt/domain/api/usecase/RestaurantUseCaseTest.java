@@ -43,7 +43,7 @@ class RestaurantUseCaseTest {
         RestaurantBuilder restaurantBuilder = new RestaurantBuilder();
         Restaurant restaurant = restaurantBuilder.setOwnerId("ownerId").createRestaurant();
 
-        when(userApiPort.getUserById("ownerId")).thenReturn(owner);
+        when(userApiPort.findUserById("ownerId")).thenReturn(owner);
 
         restaurantUseCase.saveRestaurant(restaurant);
 
@@ -57,13 +57,13 @@ class RestaurantUseCaseTest {
 
         User user = new UserBuilder().setRole(Role.EMPLOYEE).setDocumentId("nonOwnerDocId").createUser();
 
-        when(userApiPort.getUserById(restaurant.getOwnerId())).thenReturn(user);
+        when(userApiPort.findUserById(restaurant.getOwnerId())).thenReturn(user);
 
         assertThrows(
                 NotOwnerException.class,
                 () -> restaurantUseCase.saveRestaurant(restaurant)
         );
-        verify(userApiPort).getUserById(restaurant.getOwnerId());
+        verify(userApiPort).findUserById(restaurant.getOwnerId());
         verify(restaurantPersistencePort, never()).saveRestaurant(restaurant);
     }
 }

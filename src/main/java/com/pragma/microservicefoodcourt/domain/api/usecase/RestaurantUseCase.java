@@ -19,7 +19,7 @@ public class RestaurantUseCase implements IRestaurantServicePort {
 
     @Override
     public void saveRestaurant(Restaurant restaurant) {
-        User user = userApiPort.getUserById(restaurant.getOwnerId());
+        User user = userApiPort.findUserById(restaurant.getOwnerId());
 
         if (!user.getRole().equals(Role.OWNER)) {
             throw new NotOwnerException(user.getDocumentId());
