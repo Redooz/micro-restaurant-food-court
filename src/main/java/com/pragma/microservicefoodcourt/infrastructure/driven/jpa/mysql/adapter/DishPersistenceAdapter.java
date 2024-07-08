@@ -22,4 +22,9 @@ public class DishPersistenceAdapter implements IDishPersistencePort {
     public Optional<Dish> findDishById(Long id) {
         return dishRepository.findById(id).map(dishMapper::toDomain);
     }
+
+    @Override
+    public void updateDish(Dish dish) {
+        dishRepository.save(dishMapper.toEntity(dish));
+    }
 }
