@@ -4,6 +4,7 @@ import com.pragma.microservicefoodcourt.application.dto.request.CreateRestaurant
 import com.pragma.microservicefoodcourt.application.handler.RestaurantHandler;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class RestaurantControllerAdapter {
             @ApiResponse(responseCode = "201", description = "Restaurant created"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> createRestaurant(@RequestBody @Valid CreateRestaurantRequest request) {
         restaurantHandler.createRestaurant(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();

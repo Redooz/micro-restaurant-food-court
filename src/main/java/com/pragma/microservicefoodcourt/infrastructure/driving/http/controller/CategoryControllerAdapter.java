@@ -4,6 +4,7 @@ import com.pragma.microservicefoodcourt.application.dto.request.CreateCategoryRe
 import com.pragma.microservicefoodcourt.application.handler.CategoryHandler;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class CategoryControllerAdapter {
             @ApiResponse(responseCode = "201", description = "Category created"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> createCategory(@RequestBody @Valid CreateCategoryRequest request) {
         categoryHandler.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
