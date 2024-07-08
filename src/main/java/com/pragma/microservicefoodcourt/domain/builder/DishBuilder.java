@@ -2,6 +2,7 @@ package com.pragma.microservicefoodcourt.domain.builder;
 
 import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
+import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 
 public class DishBuilder {
     private Long id;
@@ -10,7 +11,7 @@ public class DishBuilder {
     private String description;
     private String urlImage;
     private Category category;
-    private String restaurantNIT;
+    private Restaurant restaurantNIT;
 
     public DishBuilder setId(Long id) {
         this.id = id;
@@ -42,7 +43,7 @@ public class DishBuilder {
         return this;
     }
 
-    public DishBuilder setRestaurantNIT(String restaurantNIT) {
+    public DishBuilder setRestaurantNIT(Restaurant restaurantNIT) {
         this.restaurantNIT = restaurantNIT;
         return this;
     }

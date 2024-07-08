@@ -7,16 +7,16 @@ public class Dish {
     private String description;
     private String urlImage;
     private Category category;
-    private String restaurantNIT;
+    private Restaurant restaurant;
 
-    public Dish(Long id, String name, Double price, String description, String urlImage, Category category, String restaurantNIT) {
+    public Dish(Long id, String name, Double price, String description, String urlImage, Category category, Restaurant restaurant) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
         this.urlImage = urlImage;
         this.category = category;
-        this.restaurantNIT = restaurantNIT;
+        this.restaurant = restaurant;
     }
 
     public Long getId() {
@@ -67,12 +67,12 @@ public class Dish {
         this.category = category;
     }
 
-    public String getRestaurantNIT() {
-        return restaurantNIT;
+    public Restaurant getRestaurant() {
+        return restaurant;
     }
 
-    public void setRestaurantNIT(String restaurantNIT) {
-        this.restaurantNIT = restaurantNIT;
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
     }
 
 }

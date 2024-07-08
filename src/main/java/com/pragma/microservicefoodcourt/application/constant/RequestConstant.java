@@ -8,5 +8,4 @@ public class RequestConstant {
     public static final String REGEX_ONLY_NUMBERS = "^\\d+$";
     public static final String REGEX_PHONE = "^\\+\\d{11,12}$";
     public static final String REGEX_URL = "^(https?:\\/\\/)?((localhost|[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}))(\\:[0-9]{1,5})?(\\/.*|)$";
-    public static final String REGEX_POSITIVE_NUMBER = "^[1-9]\\d*$";
 }

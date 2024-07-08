@@ -6,15 +6,17 @@ import com.pragma.microservicefoodcourt.application.dto.CategoryItemDto;
 import lombok.Builder;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 
 @Builder
 public record CreateDishRequest(
         @NotBlank(message = DishReqConstant.MSG_NAME_IS_REQUIRED)
         String name,
 
-        @NotBlank(message = DishReqConstant.MSG_PRICE_IS_REQUIRED)
-        @Pattern(regexp = RequestConstant.REGEX_POSITIVE_NUMBER, message = DishReqConstant.MSG_PRICE_FORMAT)
+        @NotNull(message = DishReqConstant.MSG_PRICE_IS_REQUIRED)
+        @Positive(message = DishReqConstant.MSG_PRICE_FORMAT)
         Double price,
 
         @NotBlank(message = DishReqConstant.MSG_DESCRIPTION_IS_REQUIRED)
@@ -26,7 +28,6 @@ public record CreateDishRequest(
 
         CategoryItemDto category,
 
-        @NotBlank(message = DishReqConstant.MSG_RESTAURANT_NIT_IS_REQUIRED)
-        String restaurantNIT
+        RestaurantItemDto restaurant
 ) {
 }

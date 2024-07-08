@@ -22,9 +22,9 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void saveDish(Dish dish) {
-        if (restaurantServicePort.findRestaurantByNit(dish.getRestaurantNIT()).isEmpty()) {
+        if (restaurantServicePort.findRestaurantByNit(dish.getRestaurant().getNit()).isEmpty()) {
             throw new NoDataFoundException(
-                    String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, dish.getRestaurantNIT())
+                    String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, dish.getRestaurant())
             );
         }
 

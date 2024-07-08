@@ -12,5 +12,5 @@ public class DishReqConstant {
     public static final String MSG_RESTAURANT_NIT_IS_REQUIRED = "Restaurant NIT is required";
 
     public static final String MSG_URL_IMAGE_FORMAT = "Url image format is invalid";
-    public static final String MSG_PRICE_FORMAT = "Price format is invalid";
+    public static final String MSG_PRICE_FORMAT = "Price must be a positive number";
 }
