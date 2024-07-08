@@ -13,6 +13,6 @@ public class DishHandler {
     private final IDishDtoMapper dishDtoMapper;
 
     public void createDish(CreateDishRequest request) {
-        dishServicePort.saveDish(dishDtoMapper.toModel(request));
+        dishServicePort.saveDish(dishDtoMapper.toModelFromCreate(request));
     }
 }
