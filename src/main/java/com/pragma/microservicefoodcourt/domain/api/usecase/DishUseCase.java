@@ -22,15 +22,17 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void saveDish(Dish dish) {
-        restaurantServicePort.findRestaurantByNit(dish.getRestaurantNIT())
-                .orElseThrow(() -> new NoDataFoundException(
-                        String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, dish.getRestaurantNIT()))
-                );
+        if (restaurantServicePort.findRestaurantByNit(dish.getRestaurantNIT()).isEmpty()) {
+            throw new NoDataFoundException(
+                    String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, dish.getRestaurantNIT())
+            );
+        }
 
-        categoryServicePort.findCategoryById(dish.getCategory().getId())
-                .orElseThrow(() -> new NoDataFoundException(
-                        String.format(CategoryConstant.CATEGORY_NOT_FOUND_EXCEPTION_MESSAGE, dish.getCategory().getId()))
-                );
+        if (categoryServicePort.findCategoryById(dish.getCategory().getId()).isEmpty()) {
+            throw new NoDataFoundException(
+                    String.format(CategoryConstant.CATEGORY_NOT_FOUND_EXCEPTION_MESSAGE, dish.getCategory().getId())
+            );
+        }
 
         dishPersistencePort.saveDish(dish);
     }
