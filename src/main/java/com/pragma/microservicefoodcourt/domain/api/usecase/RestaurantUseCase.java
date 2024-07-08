@@ -1,6 +1,8 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
+import com.pragma.microservicefoodcourt.domain.constant.RestaurantConstant;
+import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.exception.NotOwnerException;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.Role;
@@ -31,7 +33,9 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     }
 
     @Override
-    public Optional<Restaurant> findRestaurantByNit(String nit) {
-        return restaurantPersistencePort.findByNit(nit);
+    public Restaurant findRestaurantByNit(String nit) {
+        return restaurantPersistencePort.findByNit(nit).orElseThrow(() -> new NoDataFoundException(
+                String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, nit)
+        ));
     }
 }

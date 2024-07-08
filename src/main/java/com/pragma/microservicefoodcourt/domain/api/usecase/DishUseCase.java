@@ -3,9 +3,6 @@ package com.pragma.microservicefoodcourt.domain.api.usecase;
 import com.pragma.microservicefoodcourt.domain.api.ICategoryServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
-import com.pragma.microservicefoodcourt.domain.constant.CategoryConstant;
-import com.pragma.microservicefoodcourt.domain.constant.RestaurantConstant;
-import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
 import com.pragma.microservicefoodcourt.domain.spi.IDishPersistencePort;
 
@@ -22,17 +19,11 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void saveDish(Dish dish) {
-        if (restaurantServicePort.findRestaurantByNit(dish.getRestaurant().getNit()).isEmpty()) {
-            throw new NoDataFoundException(
-                    String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, dish.getRestaurant())
-            );
-        }
+        // Check if the restaurant exists
+        restaurantServicePort.findRestaurantByNit(dish.getRestaurant().getNit());
 
-        if (categoryServicePort.findCategoryById(dish.getCategory().getId()).isEmpty()) {
-            throw new NoDataFoundException(
-                    String.format(CategoryConstant.CATEGORY_NOT_FOUND_EXCEPTION_MESSAGE, dish.getCategory().getId())
-            );
-        }
+        // Check if the category exists
+        categoryServicePort.findCategoryById(dish.getCategory().getId());
 
         dishPersistencePort.saveDish(dish);
     }

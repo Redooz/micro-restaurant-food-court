@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface ICategoryServicePort {
     void saveCategory(Category category);
-    Optional<Category> findCategoryById(Long id);
+    Category findCategoryById(Long id);
 }

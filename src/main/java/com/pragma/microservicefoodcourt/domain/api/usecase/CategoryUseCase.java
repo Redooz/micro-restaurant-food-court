@@ -1,10 +1,10 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.ICategoryServicePort;
+import com.pragma.microservicefoodcourt.domain.constant.CategoryConstant;
+import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.spi.ICategoryPersistencePort;
-
-import java.util.Optional;
 
 public class CategoryUseCase implements ICategoryServicePort {
     private final ICategoryPersistencePort categoryPersistencePort;
@@ -19,7 +19,11 @@ public class CategoryUseCase implements ICategoryServicePort {
     }
 
     @Override
-    public Optional<Category> findCategoryById(Long id) {
-        return categoryPersistencePort.findCategoryById(id);
+    public Category findCategoryById(Long id) {
+        return categoryPersistencePort.findCategoryById(id).orElseThrow(
+                () -> new NoDataFoundException(
+                        String.format(CategoryConstant.CATEGORY_NOT_FOUND_EXCEPTION_MESSAGE, id)
+                )
+        );
     }
 }

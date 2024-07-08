@@ -43,7 +43,7 @@ public class DishBuilder {
         return this;
     }
 
-    public DishBuilder setRestaurantNIT(Restaurant restaurantNIT) {
+    public DishBuilder setRestaurant(Restaurant restaurantNIT) {
         this.restaurantNIT = restaurantNIT;
         return this;
     }
