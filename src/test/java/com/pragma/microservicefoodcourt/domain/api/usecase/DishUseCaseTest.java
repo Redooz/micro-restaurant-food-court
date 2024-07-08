@@ -6,6 +6,7 @@ import com.pragma.microservicefoodcourt.domain.api.ICategoryServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.DishBuilder;
 import com.pragma.microservicefoodcourt.domain.builder.RestaurantBuilder;
+import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.Category;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -80,5 +83,85 @@ class DishUseCaseTest {
 
         assertThrows(RuntimeException.class, () -> dishUseCase.saveDish(dish));
         verify(dishPersistencePort, times(0)).saveDish(dish);
+    }
+
+    @Test
+    @DisplayName("Should update dish when dish exists")
+    void shouldUpdateDishWhenDishExists() {
+        Dish originalDish = new DishBuilder().createDish();
+        Dish updatedDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(100.0)
+                .setDescription("Desc")
+                .createDish();
+
+        when(dishPersistencePort.findDishById(updatedDish.getId())).thenReturn(Optional.of(originalDish));
+
+        dishUseCase.updateDish(updatedDish);
+
+        verify(dishPersistencePort, times(1)).updateDish(originalDish);
+    }
+
+    @Test
+    @DisplayName("Should not update dish when dish does not exist")
+    void shouldNotUpdateDishWhenDishDoesNotExist() {
+        Dish updatedDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(100.0)
+                .setDescription("Desc")
+                .createDish();
+
+        when(dishPersistencePort.findDishById(updatedDish.getId())).thenReturn(Optional.empty());
+
+        assertThrows(NoDataFoundException.class, () -> dishUseCase.updateDish(updatedDish));
+        verify(dishPersistencePort, times(0)).updateDish(any());
+    }
+
+    @Test
+    @DisplayName("Should update dish and keep original price when updated price is null")
+    void shouldUpdateDishAndKeepOriginalPriceWhenUpdatedPriceIsNull() {
+        Dish originalDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(50.0)
+                .setDescription("Original description")
+                .createDish();
+        Dish updatedDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(null)
+                .setDescription("Updated description")
+                .createDish();
+
+        when(dishPersistencePort.findDishById(updatedDish.getId())).thenReturn(Optional.of(originalDish));
+
+        dishUseCase.updateDish(updatedDish);
+
+        assertEquals(50.0, originalDish.getPrice());
+        assertEquals("Updated description", originalDish.getDescription());
+
+        verify(dishPersistencePort, times(1)).updateDish(originalDish);
+    }
+
+    @Test
+    @DisplayName("Should update dish and keep original description when updated description is null")
+    void shouldUpdateDishAndKeepOriginalDescriptionWhenUpdatedDescriptionIsNull() {
+        Dish originalDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(50.0)
+                .setDescription("Original description")
+                .createDish();
+        Dish updatedDish = new DishBuilder()
+                .setId(1L)
+                .setPrice(100.0)
+                .setDescription(null)
+                .createDish();
+
+        when(dishPersistencePort.findDishById(updatedDish.getId())).thenReturn(Optional.of(originalDish));
+
+        dishUseCase.updateDish(updatedDish);
+
+        assertEquals(100.0, originalDish.getPrice());
+        assertEquals("Original description", originalDish.getDescription());
+
+        verify(dishPersistencePort, times(1)).updateDish(originalDish);
     }
 }

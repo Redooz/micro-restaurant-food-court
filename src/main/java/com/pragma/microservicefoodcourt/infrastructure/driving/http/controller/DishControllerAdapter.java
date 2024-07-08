@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -8,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -31,5 +29,16 @@ public class DishControllerAdapter {
     public ResponseEntity<Void> createDish(@RequestBody @Valid CreateDishRequest request) {
         dishHandler.createDish(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PatchMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Dish updated"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Dish not found")
+    })
+    public ResponseEntity<Void> updateDish(@PathVariable Long id, @RequestBody @Valid UpdateDishRequest request) {
+        dishHandler.updateDish(id, request);
+        return ResponseEntity.noContent().build();
     }
 }
