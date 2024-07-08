@@ -6,10 +6,10 @@ public class Dish {
     private Double price;
     private String description;
     private String urlImage;
-    private String category;
+    private Category category;
     private String restaurantNIT;
 
-    public Dish(Long id, String name, Double price, String description, String urlImage, String category, String restaurantNIT) {
+    public Dish(Long id, String name, Double price, String description, String urlImage, Category category, String restaurantNIT) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -59,11 +59,11 @@ public class Dish {
         this.urlImage = urlImage;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

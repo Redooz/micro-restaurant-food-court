@@ -1,5 +1,6 @@
 package com.pragma.microservicefoodcourt.domain.builder;
 
+import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
 
 public class DishBuilder {
@@ -8,7 +9,7 @@ public class DishBuilder {
     private Double price;
     private String description;
     private String urlImage;
-    private String category;
+    private Category category;
     private String restaurantNIT;
 
     public DishBuilder setId(Long id) {
@@ -36,7 +37,7 @@ public class DishBuilder {
         return this;
     }
 
-    public DishBuilder setCategory(String category) {
+    public DishBuilder setCategory(Category category) {
         this.category = category;
         return this;
     }
