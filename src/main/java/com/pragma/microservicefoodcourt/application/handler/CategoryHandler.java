@@ -1,0 +1,18 @@
+package com.pragma.microservicefoodcourt.application.handler;
+
+import com.pragma.microservicefoodcourt.application.dto.request.CreateCategoryRequest;
+import com.pragma.microservicefoodcourt.application.mapper.ICategoryDtoMapper;
+import com.pragma.microservicefoodcourt.domain.api.ICategoryServicePort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CategoryHandler {
+    private final ICategoryServicePort categoryServicePort;
+    private final ICategoryDtoMapper categoryDtoMapper;
+
+    public void createCategory(CreateCategoryRequest request) {
+        categoryServicePort.saveCategory(categoryDtoMapper.toModel(request));
+    }
+}

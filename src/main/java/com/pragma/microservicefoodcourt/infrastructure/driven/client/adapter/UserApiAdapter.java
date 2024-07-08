@@ -12,7 +12,7 @@ public class UserApiAdapter implements IUserApiPort {
     private final IUserDtoMapper userDtoMapper;
 
     @Override
-    public User getUserById(String id) {
+    public User findUserById(String id) {
         return userDtoMapper.toUser(userFeignClient.findUserByDocumentId(id));
     }
 }
