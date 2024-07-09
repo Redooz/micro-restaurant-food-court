@@ -2,9 +2,12 @@ package com.pragma.microservicefoodcourt.application.mapper;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
+import com.pragma.microservicefoodcourt.application.dto.response.GetRestaurantResponse;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface IDishDtoMapper {
@@ -18,5 +21,7 @@ public interface IDishDtoMapper {
     @Mapping(target = "restaurant", ignore = true)
     Dish toModelFromUpdate(UpdateDishRequest updateDishRequest);
 
+    GetRestaurantResponse toResponseFromDish(Dish dish);
 
+    List<GetRestaurantResponse> toResponseList(List<Dish> dishes);
 }
