@@ -12,9 +12,6 @@ import java.util.List;
 public interface IRestaurantDtoMapper {
     Restaurant toModel(CreateRestaurantRequest restaurantDto);
 
-    @Mapping(target = "address", ignore = true)
-    @Mapping(target = "ownerId", ignore = true)
-    @Mapping(target = "phone", ignore = true)
     GetRestaurantResponse toResponse(Restaurant restaurant);
 
     List<GetRestaurantResponse> toResponseList(List<Restaurant> restaurants);

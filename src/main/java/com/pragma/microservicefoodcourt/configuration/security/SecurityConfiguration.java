@@ -25,6 +25,7 @@ public class SecurityConfiguration {
                 .antMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.POST,"/categories/").hasAnyAuthority(Role.ADMIN.name(), Role.OWNER.name())
                 .antMatchers(HttpMethod.POST,"/restaurants/").hasAnyAuthority(Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET,"/restaurants/").permitAll()
                 .antMatchers(HttpMethod.POST,"/dishes/").hasAnyAuthority(Role.OWNER.name())
                 .antMatchers(HttpMethod.PATCH,"/dishes/").hasAnyAuthority(Role.OWNER.name())
                 .anyRequest().authenticated()
