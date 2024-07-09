@@ -3,7 +3,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 import com.pragma.microservicefoodcourt.application.dto.request.CreateRestaurantRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetRestaurantResponse;
 import com.pragma.microservicefoodcourt.application.handler.RestaurantHandler;
-import com.pragma.microservicefoodcourt.infrastructure.driving.http.constant.RestaurantControllerConstant;
+import com.pragma.microservicefoodcourt.infrastructure.driving.http.constant.GetAllConstant;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -40,8 +40,9 @@ public class RestaurantControllerAdapter {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<List<GetRestaurantResponse>> findAllRestaurants(
-            @RequestParam(defaultValue = RestaurantControllerConstant.DEFAULT_PAGE) int page,
-            @RequestParam(defaultValue = RestaurantControllerConstant.DEFAULT_SIZE) int size) {
+            @RequestParam(defaultValue = GetAllConstant.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = GetAllConstant.DEFAULT_SIZE) int size)
+    {
         return ResponseEntity.ok(restaurantHandler.findAllRestaurants(page, size));
     }
 }
