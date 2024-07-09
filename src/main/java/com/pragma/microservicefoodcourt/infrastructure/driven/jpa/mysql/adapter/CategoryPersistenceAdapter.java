@@ -6,6 +6,7 @@ import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.I
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.ICategoryRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -21,5 +22,11 @@ public class CategoryPersistenceAdapter implements ICategoryPersistencePort {
     @Override
     public Optional<Category> findCategoryById(Long id) {
         return categoryRepository.findById(id).map(categoryMapper::toDomain);
+    }
+
+    @Override
+    public List<Category> findAllCategories(int page, int size) {
+        // TODO: Implement pagination
+        return List.of();
     }
 }
