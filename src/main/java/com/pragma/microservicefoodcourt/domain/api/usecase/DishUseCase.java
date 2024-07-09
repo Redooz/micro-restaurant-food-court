@@ -34,16 +34,13 @@ public class DishUseCase implements IDishServicePort {
         // Check if the category exists
         categoryServicePort.findCategoryById(dish.getCategory().getId());
 
-
+        dish.setIsActive(true);
         dishPersistencePort.saveDish(dish);
     }
 
     @Override
     public void updateDish(Dish updatedDish, User loggedUser) {
-        Dish originalDish = dishPersistencePort.findDishById(updatedDish.getId())
-                .orElseThrow(
-                        () -> new NoDataFoundException(String.format(DishConstant.DISH_NOT_FOUND, updatedDish.getId()))
-                );
+        Dish originalDish = this.findDishById(updatedDish.getId());
 
         Restaurant restaurant = restaurantServicePort.findRestaurantByNit(originalDish.getRestaurant().getNit());
 
@@ -58,6 +55,28 @@ public class DishUseCase implements IDishServicePort {
         originalDish.setDescription(description);
 
         dishPersistencePort.updateDish(originalDish);
+    }
+
+    @Override
+    public void updateActiveStatus(Long dishId, Boolean isActive, User loggedUser) {
+        Dish originalDish = this.findDishById(dishId);
+
+        Restaurant restaurant = restaurantServicePort.findRestaurantByNit(originalDish.getRestaurant().getNit());
+
+        if (isNotOwner(loggedUser, restaurant)) {
+            throw new PermissionDeniedException(String.format(DishConstant.PERMISSION_DENIED, "update"));
+        }
+
+        originalDish.setIsActive(isActive);
+        dishPersistencePort.updateDish(originalDish);
+    }
+
+    @Override
+    public Dish findDishById(Long id) {
+        return dishPersistencePort.findDishById(id)
+                .orElseThrow(
+                        () -> new NoDataFoundException(String.format(DishConstant.DISH_NOT_FOUND, id))
+                );
     }
 
     private boolean isNotOwner(User loggedUser, Restaurant restaurant) {
