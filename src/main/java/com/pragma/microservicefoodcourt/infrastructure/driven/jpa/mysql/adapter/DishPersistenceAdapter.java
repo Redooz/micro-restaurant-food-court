@@ -48,7 +48,7 @@ public class DishPersistenceAdapter implements IDishPersistencePort {
     }
 
     @Override
-    public List<Dish> findDishesByCategory(Category category, int page, int size) {
+    public List<Dish> findAllDishesByCategory(Category category, int page, int size) {
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         Pageable pageable = PageRequest.of(page, size, sort);
         CategoryEntity categoryEntity = categoryMapper.toEntity(category);

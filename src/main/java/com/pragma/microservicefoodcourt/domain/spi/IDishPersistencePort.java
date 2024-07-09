@@ -11,5 +11,5 @@ public interface IDishPersistencePort {
     Optional<Dish> findDishById(Long id);
     void updateDish(Dish dish);
     List<Dish> findAllDishes(int page, int size);
-    List<Dish> findDishesByCategory(Category category, int page, int size);
+    List<Dish> findAllDishesByCategory(Category category, int page, int size);
 }
