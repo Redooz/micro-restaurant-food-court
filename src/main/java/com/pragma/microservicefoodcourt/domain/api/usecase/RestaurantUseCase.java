@@ -10,6 +10,8 @@ import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IRestaurantPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 
+import java.util.List;
+
 public class RestaurantUseCase implements IRestaurantServicePort {
     private final IRestaurantPersistencePort restaurantPersistencePort;
     private final IUserApiPort userApiPort;
@@ -35,5 +37,16 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         return restaurantPersistencePort.findByNit(nit).orElseThrow(() -> new NoDataFoundException(
                 String.format(RestaurantConstant.RESTAURANT_NOT_FOUND_EXCEPTION_MESSAGE, nit)
         ));
+    }
+
+    @Override
+    public List<Restaurant> findAllRestaurants(int page, int size) {
+        List<Restaurant> restaurants = restaurantPersistencePort.findAll(page, size);
+
+        if (restaurants.isEmpty()) {
+            throw new NoDataFoundException(RestaurantConstant.EMPTY_RESTAURANT_LIST_EXCEPTION_MESSAGE);
+        }
+
+        return restaurants;
     }
 }
