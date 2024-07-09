@@ -2,6 +2,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishStatusRequest;
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +52,18 @@ class DishControllerAdapterTest {
         ResponseEntity<Void> response = dishControllerAdapter.updateDish(id, request);
 
         verify(dishHandler, times(1)).updateDish(id, request);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Should update dish status and return status 204")
+    void shouldUpdateDishStatusAndReturnStatus204() {
+        Long id = 1L;
+        UpdateDishStatusRequest request = new UpdateDishStatusRequest(true);
+
+        ResponseEntity<Void> response = dishControllerAdapter.updateDishStatus(id, request);
+
+        verify(dishHandler, times(1)).updateDishStatus(id, request);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 }

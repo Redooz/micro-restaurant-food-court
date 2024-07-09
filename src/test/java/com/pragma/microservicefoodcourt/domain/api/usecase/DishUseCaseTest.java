@@ -209,4 +209,86 @@ class DishUseCaseTest {
 
         verify(dishPersistencePort, times(1)).updateDish(originalDish);
     }
+
+    @Test
+    @DisplayName("Should update active status of dish when user is owner")
+    void shouldUpdateActiveStatusOfDishWhenUserIsOwner() {
+        Dish originalDish = new DishBuilder()
+                .setId(1L)
+                .setIsActive(true)
+                .setRestaurant(
+                        new RestaurantBuilder()
+                                .setOwnerId("ownerId")
+                                .createRestaurant()
+                )
+                .createDish();
+        User owner = new UserBuilder().setDocumentId(originalDish.getRestaurant().getOwnerId()).createUser();
+        Restaurant restaurant = new RestaurantBuilder().setOwnerId(owner.getDocumentId()).createRestaurant();
+
+        when(dishPersistencePort.findDishById(originalDish.getId())).thenReturn(Optional.of(originalDish));
+        when(restaurantServicePort.findRestaurantByNit(originalDish.getRestaurant().getNit())).thenReturn(restaurant);
+
+        dishUseCase.updateActiveStatus(originalDish.getId(), false, owner);
+
+        assertFalse(originalDish.isActive());
+        verify(dishPersistencePort, times(1)).updateDish(originalDish);
+    }
+
+    @Test
+    @DisplayName("Should not update active status of dish when user is not owner")
+    void shouldNotUpdateActiveStatusOfDishWhenUserIsNotOwner() {
+        Dish originalDish = new DishBuilder()
+                .setId(1L)
+                .setIsActive(true)
+                .setRestaurant(
+                        new RestaurantBuilder()
+                                .setOwnerId("ownerId")
+                                .createRestaurant()
+                )
+                .createDish();
+        User nonOwner = new UserBuilder().setDocumentId("differentOwnerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setOwnerId(originalDish.getRestaurant().getOwnerId()).createRestaurant();
+
+        when(dishPersistencePort.findDishById(originalDish.getId())).thenReturn(Optional.of(originalDish));
+        when(restaurantServicePort.findRestaurantByNit(originalDish.getRestaurant().getNit())).thenReturn(restaurant);
+
+        Long dishId = originalDish.getId();
+        assertThrows(PermissionDeniedException.class, () -> dishUseCase.updateActiveStatus(dishId, false, nonOwner));
+        verify(dishPersistencePort, times(0)).updateDish(originalDish);
+    }
+
+    @Test
+    @DisplayName("Should not update active status of dish when dish does not exist")
+    void shouldNotUpdateActiveStatusOfDishWhenDishDoesNotExist() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+
+        when(dishPersistencePort.findDishById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoDataFoundException.class, () -> dishUseCase.updateActiveStatus(1L, false, owner));
+        verify(dishPersistencePort, times(0)).updateDish(any());
+    }
+
+    @Test
+    @DisplayName("Should find dish by id when dish exists")
+    void shouldFindDishByIdWhenDishExists() {
+        Dish dish = new DishBuilder().setId(1L).createDish();
+
+        when(dishPersistencePort.findDishById(dish.getId())).thenReturn(Optional.of(dish));
+
+        Dish foundDish = dishUseCase.findDishById(dish.getId());
+
+        assertEquals(dish, foundDish);
+        verify(dishPersistencePort, times(1)).findDishById(dish.getId());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when dish does not exist")
+    void shouldThrowExceptionWhenDishDoesNotExist() {
+        Long dishId = 1L;
+
+        when(dishPersistencePort.findDishById(dishId)).thenReturn(Optional.empty());
+
+        assertThrows(NoDataFoundException.class, () -> dishUseCase.findDishById(dishId));
+        verify(dishPersistencePort, times(1)).findDishById(dishId);
+    }
 }
