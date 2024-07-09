@@ -3,6 +3,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishStatusRequest;
+import com.pragma.microservicefoodcourt.application.dto.response.GetDishResponse;
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -65,5 +68,17 @@ class DishControllerAdapterTest {
 
         verify(dishHandler, times(1)).updateDishStatus(id, request);
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Should get all dishes and return status 200")
+    void shouldGetAllDishesAndReturnStatus200() {
+        Long categoryId = 1L;
+        int page = 0;
+        int size = 10;
+        ResponseEntity<List<GetDishResponse>> response = dishControllerAdapter.getAllDishes(categoryId, page, size);
+
+        verify(dishHandler, times(1)).getAllDishes(categoryId, page, size);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

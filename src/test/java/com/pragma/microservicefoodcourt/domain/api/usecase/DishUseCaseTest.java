@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -291,4 +292,69 @@ class DishUseCaseTest {
         assertThrows(NoDataFoundException.class, () -> dishUseCase.findDishById(dishId));
         verify(dishPersistencePort, times(1)).findDishById(dishId);
     }
+
+    @Test
+    @DisplayName("Should find all dishes")
+    void shouldFindAllDishes() {
+        List<Dish> dishes = List.of(
+                new DishBuilder().createDish(),
+                new DishBuilder().createDish()
+        );
+        int page = 0;
+        int size = 10;
+
+        when(dishPersistencePort.findAllDishes(page, size)).thenReturn(dishes);
+
+        List<Dish> result = dishUseCase.findAllDishes(page, size);
+
+        assertEquals(dishes, result);
+        verify(dishPersistencePort, times(1)).findAllDishes(page, size);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when no dishes are found")
+    void shouldThrowExceptionWhenNoDishesAreFound() {
+        int page = 0;
+        int size = 10;
+
+        when(dishPersistencePort.findAllDishes(page, size)).thenReturn(List.of());
+
+        assertThrows(NoDataFoundException.class, () -> dishUseCase.findAllDishes(page, size));
+        verify(dishPersistencePort, times(1)).findAllDishes(page, size);
+    }
+
+    @Test
+    @DisplayName("Should find all dishes by category")
+    void shouldFindAllDishesByCategory() {
+        Long categoryId = 1L;
+        int page = 0;
+        int size = 10;
+        List<Dish> dishes = List.of(
+                new DishBuilder().setCategory(new Category(categoryId, "Category 1", "Description 1")).createDish(),
+                new DishBuilder().setCategory(new Category(categoryId, "Category 1", "Description 1")).createDish()
+        );
+        Category category = new Category(categoryId, "Category 1", "Description 1");
+
+        when(dishPersistencePort.findAllDishesByCategory(category, page, size)).thenReturn(dishes);
+
+        List<Dish> result = dishUseCase.findAllDishesByCategory(category, page, size);
+
+        assertEquals(dishes, result);
+        verify(dishPersistencePort, times(1)).findAllDishesByCategory(category, page, size);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when no dishes are found by category")
+    void shouldThrowExceptionWhenNoDishesAreFoundByCategory() {
+        Long categoryId = 1L;
+        int page = 0;
+        int size = 10;
+        Category category = new Category(categoryId, "Category 1", "Description 1");
+
+        when(dishPersistencePort.findAllDishesByCategory(category, page, size)).thenReturn(List.of());
+
+        assertThrows(NoDataFoundException.class, () -> dishUseCase.findAllDishesByCategory(category, page, size));
+        verify(dishPersistencePort, times(1)).findAllDishesByCategory(category, page, size);
+    }
+
 }
