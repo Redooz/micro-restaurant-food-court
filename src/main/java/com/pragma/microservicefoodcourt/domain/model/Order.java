@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class Order {
-    private List<DishItem> dishItems;
+    private List<OrderDish> orderDishes;
     private LocalDate date;
     private Long id;
     private OrderStatus status;
@@ -12,8 +12,8 @@ public class Order {
     private User chef;
     private User client;
 
-    public Order(List<DishItem> dishItems, LocalDate date, Long id, OrderStatus status, Restaurant restaurant, User chef, User client) {
-        this.dishItems = dishItems;
+    public Order(List<OrderDish> orderDishes, LocalDate date, Long id, OrderStatus status, Restaurant restaurant, User chef, User client) {
+        this.orderDishes = orderDishes;
         this.date = date;
         this.id = id;
         this.status = status;
@@ -22,12 +22,12 @@ public class Order {
         this.client = client;
     }
 
-    public List<DishItem> getDishItems() {
-        return dishItems;
+    public List<OrderDish> getDishItems() {
+        return orderDishes;
     }
 
-    public void setDishItems(List<DishItem> dishItems) {
-        this.dishItems = dishItems;
+    public void setDishItems(List<OrderDish> orderDishes) {
+        this.orderDishes = orderDishes;
     }
 
     public LocalDate getDate() {

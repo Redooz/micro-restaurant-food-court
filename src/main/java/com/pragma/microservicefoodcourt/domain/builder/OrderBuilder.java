@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class OrderBuilder {
-    private List<DishItem> dishItems;
+    private List<OrderDish> orderDishes;
     private LocalDate date;
     private Long id;
     private OrderStatus status;
@@ -14,8 +14,8 @@ public class OrderBuilder {
     private User chef;
     private User client;
 
-    public OrderBuilder setDishItems(List<DishItem> dishItems) {
-        this.dishItems = dishItems;
+    public OrderBuilder setDishItems(List<OrderDish> orderDishes) {
+        this.orderDishes = orderDishes;
         return this;
     }
 
@@ -50,6 +50,6 @@ public class OrderBuilder {
     }
 
     public Order createOrder() {
-        return new Order(dishItems, date, id, status, restaurant, chef, client);
+        return new Order(orderDishes, date, id, status, restaurant, chef, client);
     }
 }

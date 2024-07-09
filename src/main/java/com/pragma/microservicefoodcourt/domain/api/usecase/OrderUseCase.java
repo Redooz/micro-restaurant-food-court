@@ -41,8 +41,8 @@ public class OrderUseCase implements IOrderServicePort {
 
     public boolean allDishesAreFromSameRestaurant(Order order) {
         String restaurantId = order.getRestaurant().getNit();
-        List<DishItem> dishItems = order.getDishItems();
-        List<Dish> dishes = dishItems.stream().map(DishItem::getDish).toList();
+        List<OrderDish> orderDishes = order.getDishItems();
+        List<Dish> dishes = orderDishes.stream().map(OrderDish::getDish).toList();
 
         return dishes.stream().allMatch(dish -> dish.getRestaurant().getNit().equals(restaurantId));
     }

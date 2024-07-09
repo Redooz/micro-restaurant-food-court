@@ -1,10 +1,10 @@
 package com.pragma.microservicefoodcourt.domain.model;
 
-public class DishItem {
+public class OrderDish {
     private Dish dish;
     private int quantity;
 
-    public DishItem(Dish dish, int quantity) {
+    public OrderDish(Dish dish, int quantity) {
         this.dish = dish;
         this.quantity = quantity;
     }
