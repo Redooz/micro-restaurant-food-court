@@ -230,7 +230,7 @@ class DishUseCaseTest {
 
         dishUseCase.updateActiveStatus(originalDish.getId(), false, owner);
 
-        assertFalse(originalDish.isActive());
+        assertFalse(originalDish.getIsActive());
         verify(dishPersistencePort, times(1)).updateDish(originalDish);
     }
 
