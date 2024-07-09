@@ -2,6 +2,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishStatusRequest;
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,6 +45,19 @@ public class DishControllerAdapter {
     @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> updateDish(@PathVariable Long id, @RequestBody @Valid UpdateDishRequest request) {
         dishHandler.updateDish(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Dish status updated"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "404", description = "Dish not found")
+    })
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<Void> updateDishStatus(@PathVariable Long id, @RequestBody @Valid UpdateDishStatusRequest request) {
+        dishHandler.updateDishStatus(id, request);
         return ResponseEntity.noContent().build();
     }
 }

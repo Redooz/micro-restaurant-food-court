@@ -26,6 +26,8 @@ public class DishEntity {
 
     private String urlImage;
 
+    private Boolean isActive;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;

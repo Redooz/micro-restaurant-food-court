@@ -8,8 +8,9 @@ public class Dish {
     private String urlImage;
     private Category category;
     private Restaurant restaurant;
+    private Boolean isActive;
 
-    public Dish(Long id, String name, Double price, String description, String urlImage, Category category, Restaurant restaurant) {
+    public Dish(Long id, String name, Double price, String description, String urlImage, Category category, Restaurant restaurant, Boolean isActive) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -17,6 +18,7 @@ public class Dish {
         this.urlImage = urlImage;
         this.category = category;
         this.restaurant = restaurant;
+        this.isActive = isActive;
     }
 
     public Long getId() {
@@ -75,4 +77,11 @@ public class Dish {
         this.restaurant = restaurant;
     }
 
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 }
