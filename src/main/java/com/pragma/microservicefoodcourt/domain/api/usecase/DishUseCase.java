@@ -5,7 +5,10 @@ import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.constant.DishConstant;
 import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
+import com.pragma.microservicefoodcourt.domain.exception.PermissionDeniedException;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
+import com.pragma.microservicefoodcourt.domain.model.Restaurant;
+import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IDishPersistencePort;
 
 public class DishUseCase implements IDishServicePort {
@@ -20,22 +23,33 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void saveDish(Dish dish) {
+    public void saveDish(Dish dish, User loggedUser) {
         // Check if the restaurant exists
-        restaurantServicePort.findRestaurantByNit(dish.getRestaurant().getNit());
+        Restaurant restaurant = restaurantServicePort.findRestaurantByNit(dish.getRestaurant().getNit());
+
+        if (isNotOwner(loggedUser, restaurant)) {
+            throw new PermissionDeniedException(String.format(DishConstant.PERMISSION_DENIED, "create"));
+        }
 
         // Check if the category exists
         categoryServicePort.findCategoryById(dish.getCategory().getId());
+
 
         dishPersistencePort.saveDish(dish);
     }
 
     @Override
-    public void updateDish(Dish updatedDish) {
+    public void updateDish(Dish updatedDish, User loggedUser) {
         Dish originalDish = dishPersistencePort.findDishById(updatedDish.getId())
                 .orElseThrow(
                         () -> new NoDataFoundException(String.format(DishConstant.DISH_NOT_FOUND, updatedDish.getId()))
                 );
+
+        Restaurant restaurant = restaurantServicePort.findRestaurantByNit(originalDish.getRestaurant().getNit());
+
+        if (isNotOwner(loggedUser, restaurant)) {
+            throw new PermissionDeniedException(String.format(DishConstant.PERMISSION_DENIED, "update"));
+        }
 
         Double price = (updatedDish.getPrice() != null) ? updatedDish.getPrice() : originalDish.getPrice();
         String description = (updatedDish.getDescription() != null) ? updatedDish.getDescription() : originalDish.getDescription();
@@ -44,5 +58,9 @@ public class DishUseCase implements IDishServicePort {
         originalDish.setDescription(description);
 
         dishPersistencePort.updateDish(originalDish);
+    }
+
+    private boolean isNotOwner(User loggedUser, Restaurant restaurant) {
+        return !restaurant.getOwnerId().equals(loggedUser.getDocumentId());
     }
 }

@@ -5,6 +5,7 @@ import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishReques
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,10 @@ public class DishControllerAdapter {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Dish created"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
             @ApiResponse(responseCode = "404", description = "Provided category or restaurant not found")
     })
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> createDish(@RequestBody @Valid CreateDishRequest request) {
         dishHandler.createDish(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -35,8 +38,10 @@ public class DishControllerAdapter {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Dish updated"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
             @ApiResponse(responseCode = "404", description = "Dish not found")
     })
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> updateDish(@PathVariable Long id, @RequestBody @Valid UpdateDishRequest request) {
         dishHandler.updateDish(id, request);
         return ResponseEntity.noContent().build();
