@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -93,5 +94,28 @@ class RestaurantUseCaseTest {
                 () -> restaurantUseCase.findRestaurantByNit("nit")
         );
         verify(restaurantPersistencePort, times(1)).findByNit("nit");
+    }
+
+    @Test
+    @DisplayName("Should find all restaurants")
+    void shouldFindAllRestaurants() {
+        List<Restaurant> list = List.of(new RestaurantBuilder().createRestaurant());
+        when(restaurantPersistencePort.findAll(0, 10)).thenReturn(list);
+
+        restaurantUseCase.findAllRestaurants(0, 10);
+
+        verify(restaurantPersistencePort, times(1)).findAll(0, 10);
+    }
+
+    @Test
+    @DisplayName("Should throw no data found exception when no restaurants found")
+    void shouldThrowNoDataFoundExceptionWhenNoRestaurantsFound() {
+        when(restaurantPersistencePort.findAll(0, 10)).thenReturn(List.of());
+
+        assertThrows(
+                NoDataFoundException.class,
+                () -> restaurantUseCase.findAllRestaurants(0, 10)
+        );
+        verify(restaurantPersistencePort, times(1)).findAll(0, 10);
     }
 }
