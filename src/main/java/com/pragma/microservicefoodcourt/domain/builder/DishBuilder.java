@@ -12,6 +12,7 @@ public class DishBuilder {
     private String urlImage;
     private Category category;
     private Restaurant restaurantNIT;
+    private Boolean isActive;
 
     public DishBuilder setId(Long id) {
         this.id = id;
@@ -48,7 +49,12 @@ public class DishBuilder {
         return this;
     }
 
+    public DishBuilder setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+        return this;
+    }
+
     public Dish createDish() {
-        return new Dish(id, name, price, description, urlImage, category, restaurantNIT);
+        return new Dish(id, name, price, description, urlImage, category, restaurantNIT, isActive);
     }
 }
