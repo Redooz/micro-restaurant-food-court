@@ -6,4 +6,5 @@ public class DishConstant {
     }
 
     public static final String DISH_NOT_FOUND = "Dish with id %s not found";
+    public static final String PERMISSION_DENIED = "You don't have permission to %s a dish for this restaurant";
 }

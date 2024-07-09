@@ -10,8 +10,6 @@ import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IRestaurantPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 
-import java.util.Optional;
-
 public class RestaurantUseCase implements IRestaurantServicePort {
     private final IRestaurantPersistencePort restaurantPersistencePort;
     private final IUserApiPort userApiPort;

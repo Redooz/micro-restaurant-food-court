@@ -1,12 +1,14 @@
 package com.pragma.microservicefoodcourt.configuration.security.filter;
 
 import com.pragma.microservicefoodcourt.configuration.security.service.JwtService;
+import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,14 +37,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String token = authHeader.substring(7);
 
-        if (!jwtService.tokenIsValid(token)) {
+        final String userId = jwtService.getUsernameFromToken(token);
+
+        final Role role = jwtService.getRoleFromToken(token);
+
+        if (userId == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final Role role = jwtService.getRoleFromToken(token);
+        UserDetails userDetails = new UserBuilder()
+                .setDocumentId(userId)
+                .setRole(role)
+                .createUser();
 
-        var authentication = new UsernamePasswordAuthenticationToken(null, null, getAuthorities(role.name()));
+        if (!jwtService.tokenIsValid(token, userDetails)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, getAuthorities(role.name()));
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

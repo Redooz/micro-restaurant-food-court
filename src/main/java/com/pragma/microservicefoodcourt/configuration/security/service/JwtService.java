@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -16,6 +17,10 @@ import java.util.function.Function;
 public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
+
+    public String getUsernameFromToken(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
+    }
 
     private boolean isTokenExpired(String token) {
         return getExpirationDateFromToken(token).before(new Date());
@@ -34,8 +39,9 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public boolean tokenIsValid(String token) {
-        return !isTokenExpired(token);
+    public boolean tokenIsValid(String token, UserDetails userDetails) {
+        final String username = getUsernameFromToken(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     private Claims getAllClaimsFromToken(String token) {

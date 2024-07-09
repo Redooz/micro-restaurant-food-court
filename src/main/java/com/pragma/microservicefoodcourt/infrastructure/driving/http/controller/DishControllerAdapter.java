@@ -25,6 +25,7 @@ public class DishControllerAdapter {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Dish created"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
             @ApiResponse(responseCode = "404", description = "Provided category or restaurant not found")
     })
     @SecurityRequirement(name = "bearer-key")
@@ -37,6 +38,7 @@ public class DishControllerAdapter {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Dish updated"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
             @ApiResponse(responseCode = "404", description = "Dish not found")
     })
     @SecurityRequirement(name = "bearer-key")
