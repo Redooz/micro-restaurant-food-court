@@ -17,4 +17,6 @@ public interface IDishDtoMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "restaurant", ignore = true)
     Dish toModelFromUpdate(UpdateDishRequest updateDishRequest);
+
+
 }
