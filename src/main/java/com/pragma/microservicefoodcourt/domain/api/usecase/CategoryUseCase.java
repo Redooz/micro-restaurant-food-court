@@ -6,6 +6,8 @@ import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.spi.ICategoryPersistencePort;
 
+import java.util.List;
+
 public class CategoryUseCase implements ICategoryServicePort {
     private final ICategoryPersistencePort categoryPersistencePort;
 
@@ -25,5 +27,16 @@ public class CategoryUseCase implements ICategoryServicePort {
                         String.format(CategoryConstant.CATEGORY_NOT_FOUND_EXCEPTION_MESSAGE, id)
                 )
         );
+    }
+
+    @Override
+    public List<Category> findAllCategories(int page, int size) {
+        List <Category> categories = categoryPersistencePort.findAllCategories(page, size);
+
+        if (categories.isEmpty()) {
+            throw new NoDataFoundException(CategoryConstant.CATEGORY_LIST_EMPTY_EXCEPTION_MESSAGE);
+        }
+
+        return categories;
     }
 }

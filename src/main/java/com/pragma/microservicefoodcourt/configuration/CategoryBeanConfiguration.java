@@ -25,4 +25,8 @@ public class CategoryBeanConfiguration {
     public ICategoryServicePort categoryServicePort() {
         return new CategoryUseCase(categoryPersistencePort());
     }
+
+    public ICategoryEntityMapper categoryEntityMapper() {
+        return categoryEntityMapper;
+    }
 }

@@ -20,7 +20,7 @@ public class DishBeanConfiguration {
 
     @Bean
     public IDishPersistencePort dishPersistencePort() {
-        return new DishPersistenceAdapter(dishRepository, dishEntityMapper);
+        return new DishPersistenceAdapter(dishRepository, dishEntityMapper, categoryBeanConfiguration.categoryEntityMapper());
     }
 
     @Bean

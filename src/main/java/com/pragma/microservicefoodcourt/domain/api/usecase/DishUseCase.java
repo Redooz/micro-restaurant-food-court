@@ -6,10 +6,13 @@ import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.constant.DishConstant;
 import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.exception.PermissionDeniedException;
+import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.model.Dish;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IDishPersistencePort;
+
+import java.util.List;
 
 public class DishUseCase implements IDishServicePort {
     private final IDishPersistencePort dishPersistencePort;
@@ -77,6 +80,28 @@ public class DishUseCase implements IDishServicePort {
                 .orElseThrow(
                         () -> new NoDataFoundException(String.format(DishConstant.DISH_NOT_FOUND, id))
                 );
+    }
+
+    @Override
+    public List<Dish> findAllDishes(int page, int size) {
+        List<Dish> dishes = dishPersistencePort.findAllDishes(page, size);
+
+        if (dishes.isEmpty()) {
+            throw new NoDataFoundException(DishConstant.EMPTY_DISHES_LIST_FOUND);
+        }
+
+        return dishes;
+    }
+
+    @Override
+    public List<Dish> findAllDishesByCategory(Category category, int page, int size) {
+        List<Dish> dishes = dishPersistencePort.findAllDishesByCategory(category, page, size);
+
+        if (dishes.isEmpty()) {
+            throw new NoDataFoundException(DishConstant.EMPTY_DISHES_LIST_FOUND);
+        }
+
+        return dishes;
     }
 
     private boolean isNotOwner(User loggedUser, Restaurant restaurant) {

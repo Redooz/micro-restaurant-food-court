@@ -3,7 +3,9 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 import com.pragma.microservicefoodcourt.application.dto.request.CreateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishRequest;
 import com.pragma.microservicefoodcourt.application.dto.request.UpdateDishStatusRequest;
+import com.pragma.microservicefoodcourt.application.dto.response.GetDishResponse;
 import com.pragma.microservicefoodcourt.application.handler.DishHandler;
+import com.pragma.microservicefoodcourt.infrastructure.driving.http.constant.GetAllConstant;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/dishes")
@@ -59,5 +62,19 @@ public class DishControllerAdapter {
     public ResponseEntity<Void> updateDishStatus(@PathVariable Long id, @RequestBody @Valid UpdateDishStatusRequest request) {
         dishHandler.updateDishStatus(id, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dishes retrieved"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Dishes not found")
+    })
+    public ResponseEntity<List<GetDishResponse>> getAllDishes(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = GetAllConstant.DEFAULT_PAGE) int page,
+            @RequestParam(defaultValue = GetAllConstant.DEFAULT_SIZE) int size)
+    {
+        return ResponseEntity.ok(dishHandler.getAllDishes(categoryId, page, size));
     }
 }

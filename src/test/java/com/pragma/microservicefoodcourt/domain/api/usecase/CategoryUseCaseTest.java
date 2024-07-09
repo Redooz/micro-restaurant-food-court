@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,5 +58,28 @@ class CategoryUseCaseTest {
         assertThrows(NoDataFoundException.class, () -> categoryUseCase.findCategoryById(1L));
 
         verify(categoryPersistencePort, times(1)).findCategoryById(1L);
+    }
+
+    @Test
+    @DisplayName("Should find all categories")
+    void shouldFindAllCategories() {
+        List<Category> categories = List.of(
+                new Category(1L, "Test", "Test"),
+                new Category(2L, "Test", "Test")
+        );
+        when(categoryPersistencePort.findAllCategories(0, 10)).thenReturn(categories);
+
+        categoryUseCase.findAllCategories(0, 10);
+        verify(categoryPersistencePort, times(1)).findAllCategories(0, 10);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when category list is empty")
+    void shouldThrowExceptionWhenCategoryListIsEmpty() {
+        when(categoryPersistencePort.findAllCategories(0, 10)).thenReturn(List.of());
+
+        assertThrows(NoDataFoundException.class, () -> categoryUseCase.findAllCategories(0, 10));
+
+        verify(categoryPersistencePort, times(1)).findAllCategories(0, 10);
     }
 }

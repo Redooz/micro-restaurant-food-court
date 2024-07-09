@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.infrastructure.driving.http.constant;
 
-public class RestaurantControllerConstant {
-    private RestaurantControllerConstant() {
+public class GetAllConstant {
+    private GetAllConstant() {
         throw new IllegalStateException("Utility class");
     }
 

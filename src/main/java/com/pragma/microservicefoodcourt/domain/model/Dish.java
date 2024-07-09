@@ -77,7 +77,7 @@ public class Dish {
         this.restaurant = restaurant;
     }
 
-    public Boolean isActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
