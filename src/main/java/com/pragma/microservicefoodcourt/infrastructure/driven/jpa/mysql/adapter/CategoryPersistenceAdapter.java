@@ -2,9 +2,13 @@ package com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter
 
 import com.pragma.microservicefoodcourt.domain.model.Category;
 import com.pragma.microservicefoodcourt.domain.spi.ICategoryPersistencePort;
+import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.CategoryEntity;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.ICategoryEntityMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.ICategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +30,10 @@ public class CategoryPersistenceAdapter implements ICategoryPersistencePort {
 
     @Override
     public List<Category> findAllCategories(int page, int size) {
-        // TODO: Implement pagination
-        return List.of();
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        List<CategoryEntity> categoryEntities = categoryRepository.findAll(pageable).getContent();
+
+        return categoryMapper.toDomainList(categoryEntities);
     }
 }
