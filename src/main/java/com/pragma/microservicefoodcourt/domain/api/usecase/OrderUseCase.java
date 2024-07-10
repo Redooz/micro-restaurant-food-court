@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
+import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
 import com.pragma.microservicefoodcourt.domain.model.*;
@@ -10,13 +11,18 @@ import java.util.List;
 
 public class OrderUseCase implements IOrderServicePort {
     private final IOrderPersistencePort orderPersistencePort;
+    private final IRestaurantServicePort restaurantServicePort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort) {
         this.orderPersistencePort = orderPersistencePort;
+        this.restaurantServicePort = restaurantServicePort;
     }
 
     @Override
     public void saveOrder(Order order) {
+        // Check if restaurant exists
+        restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
+
         if (!allDishesAreFromSameRestaurant(order)) {
             throw new DishIsNotFromRestaurantException(order.getRestaurant().getNit());
         }

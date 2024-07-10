@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class OrderBeanConfiguration {
     private final IOrderRepository orderRepository;
     private final IOrderEntityMapper orderEntityMapper;
+    private final RestaurantBeanConfiguration restaurantBeanConfiguration;
 
     @Bean
     public IOrderPersistencePort orderPersistencePort() {
@@ -23,6 +24,6 @@ public class OrderBeanConfiguration {
 
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderPersistencePort());
+        return new OrderUseCase(orderPersistencePort(), restaurantBeanConfiguration.restaurantServicePort());
     }
 }
