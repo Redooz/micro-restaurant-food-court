@@ -14,7 +14,7 @@ public class OrderBuilder {
     private String chef;
     private String client;
 
-    public OrderBuilder setDishItems(List<OrderDish> orderDishes) {
+    public OrderBuilder setOrderDishes(List<OrderDish> orderDishes) {
         this.orderDishes = orderDishes;
         return this;
     }
@@ -39,12 +39,12 @@ public class OrderBuilder {
         return this;
     }
 
-    public OrderBuilder setChef(String chef) {
+    public OrderBuilder setChefId(String chef) {
         this.chef = chef;
         return this;
     }
 
-    public OrderBuilder setClient(String client) {
+    public OrderBuilder setClientId(String client) {
         this.client = client;
         return this;
     }

@@ -10,6 +10,7 @@ import com.pragma.microservicefoodcourt.domain.model.*;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderUseCase implements IOrderServicePort {
@@ -41,7 +42,7 @@ public class OrderUseCase implements IOrderServicePort {
         orderPersistencePort.saveOrder(order);
     }
 
-    public boolean userHasProcessingOrder(String id) {
+    private boolean userHasProcessingOrder(String id) {
         User user = new UserBuilder().setDocumentId(id).createUser();
 
         List<Order> orders = orderPersistencePort.findAllOrdersByClientId(user);
@@ -53,11 +54,11 @@ public class OrderUseCase implements IOrderServicePort {
                 );
     }
 
-    public boolean allDishesAreFromSameRestaurant(Order order) {
+    private boolean allDishesAreFromSameRestaurant(Order order) {
         String restaurantId = order.getRestaurant().getNit();
         List<OrderDish> orderDishes = order.getOrderDishes();
         List<Dish> dishes = orderDishes.stream().map(OrderDish::getDish).toList();
-        List<Dish> dishesFromDb = new java.util.ArrayList<>(List.of());
+        List<Dish> dishesFromDb = new ArrayList<>(List.of());
 
         for (Dish dish : dishes) {
             var dbDish = dishServicePort.findDishById(dish.getId());
