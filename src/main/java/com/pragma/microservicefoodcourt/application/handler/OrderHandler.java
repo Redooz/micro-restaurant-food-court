@@ -18,7 +18,7 @@ public class OrderHandler {
     public void createOrder(CreateOrderRequest request) {
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderDtoMapper.toModelFromCreate(request);
-
+g
         order.setClient(loggedUser);
         orderServicePort.saveOrder(order);
     }
