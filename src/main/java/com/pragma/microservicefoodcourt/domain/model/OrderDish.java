@@ -4,11 +4,13 @@ public class OrderDish {
     private Long id;
     private Dish dish;
     private int quantity;
+    private Long orderId;
 
-    public OrderDish(Long id, Dish dish, int quantity) {
+    public OrderDish(Long id, Dish dish, int quantity, Long orderId) {
         this.id = id;
         this.dish = dish;
         this.quantity = quantity;
+        this.orderId = orderId;
     }
 
     public Long getId() {
@@ -33,5 +35,13 @@ public class OrderDish {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 }

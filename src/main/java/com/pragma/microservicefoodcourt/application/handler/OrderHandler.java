@@ -19,7 +19,7 @@ public class OrderHandler {
         User loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Order order = orderDtoMapper.toModelFromCreate(request);
 
-        order.setClient(loggedUser);
+        order.setClientId(loggedUser.getDocumentId());
         orderServicePort.saveOrder(order);
     }
 }

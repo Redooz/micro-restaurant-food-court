@@ -6,7 +6,7 @@ import com.pragma.microservicefoodcourt.application.dto.RestaurantItemDto;
 import java.util.List;
 
 public record CreateOrderRequest(
-    List<OrderDishItemDto> orderDishItems,
+    List<OrderDishItemDto> orderDishes,
     RestaurantItemDto restaurant
 ) {
 }

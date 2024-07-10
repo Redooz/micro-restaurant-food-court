@@ -1,6 +1,8 @@
 package com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper;
 
 import com.pragma.microservicefoodcourt.domain.model.Order;
+import com.pragma.microservicefoodcourt.domain.model.OrderDish;
+import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.OrderDishEntity;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.OrderEntity;
 import org.mapstruct.Mapper;
 
@@ -13,4 +15,8 @@ public interface IOrderEntityMapper {
     Order toModel(OrderEntity orderEntity);
 
     List<Order> toModelList(List<OrderEntity> orderEntities);
+
+    OrderDishEntity orderDishToEntity(OrderDish orderDish);
+
+    List<OrderDishEntity> orderDishListToEntityList(List<OrderDish> orderDishes);
 }

@@ -5,8 +5,3 @@ public record OrderDishItemDto(
     int quantity
 ) {
 }
-
-record DishItemDto(
-    Long id
-) {
-}

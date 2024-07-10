@@ -23,13 +23,14 @@ public class OrderEntity {
 
     private LocalDate date;
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "restaurant_nit")
     private RestaurantEntity restaurant;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "orderId")
     private List<OrderDishEntity> orderDishes;
 
     private String chefId;

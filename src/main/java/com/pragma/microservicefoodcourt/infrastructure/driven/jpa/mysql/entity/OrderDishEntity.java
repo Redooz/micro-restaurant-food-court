@@ -18,9 +18,8 @@ public class OrderDishEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    @Column(name = "order_id")
+    private Long orderId;
 
     @ManyToOne
     @JoinColumn(name = "dish_id")

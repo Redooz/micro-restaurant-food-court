@@ -3,8 +3,10 @@ package com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter
 import com.pragma.microservicefoodcourt.domain.model.Order;
 import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
+import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.OrderDishEntity;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.OrderEntity;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IOrderEntityMapper;
+import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.IOrderDishRepository;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.IOrderRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -13,11 +15,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderPersistenceAdapter implements IOrderPersistencePort {
     private final IOrderRepository orderRepository;
+    private final IOrderDishRepository orderDishRepository;
     private final IOrderEntityMapper orderEntityMapper;
 
     @Override
     public void saveOrder(Order order) {
-        orderRepository.save(orderEntityMapper.toEntity(order));
+        OrderEntity savedOrder = orderRepository.save(orderEntityMapper.toEntity(order));
+
+        order.getOrderDishes().forEach(orderDish ->
+                orderDish.setOrderId(savedOrder.getId())
+        );
+
+        List<OrderDishEntity> orderDishEntities = orderEntityMapper.orderDishListToEntityList(order.getOrderDishes());
+
+        orderDishRepository.saveAll(orderDishEntities);
     }
 
     @Override

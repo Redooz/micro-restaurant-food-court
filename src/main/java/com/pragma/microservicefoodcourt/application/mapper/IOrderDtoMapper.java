@@ -11,7 +11,7 @@ public interface IOrderDtoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "date", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "chef", ignore = true)
-    @Mapping(target = "client", ignore = true)
+    @Mapping(target = "chefId", ignore = true)
+    @Mapping(target = "clientId", ignore = true)
     Order toModelFromCreate(CreateOrderRequest createOrderRequest);
 }

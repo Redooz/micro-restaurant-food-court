@@ -9,24 +9,24 @@ public class Order {
     private Long id;
     private OrderStatus status;
     private Restaurant restaurant;
-    private User chef;
-    private User client;
+    private String chefId;
+    private String clientId;
 
-    public Order(List<OrderDish> orderDishes, LocalDate date, Long id, OrderStatus status, Restaurant restaurant, User chef, User client) {
+    public Order(List<OrderDish> orderDishes, LocalDate date, Long id, OrderStatus status, Restaurant restaurant, String chefId, String clientId) {
         this.orderDishes = orderDishes;
         this.date = date;
         this.id = id;
         this.status = status;
         this.restaurant = restaurant;
-        this.chef = chef;
-        this.client = client;
+        this.chefId = chefId;
+        this.clientId = clientId;
     }
 
-    public List<OrderDish> getDishItems() {
+    public List<OrderDish> getOrderDishes() {
         return orderDishes;
     }
 
-    public void setDishItems(List<OrderDish> orderDishes) {
+    public void setOrderDishes(List<OrderDish> orderDishes) {
         this.orderDishes = orderDishes;
     }
 
@@ -62,19 +62,19 @@ public class Order {
         this.restaurant = restaurant;
     }
 
-    public User getChef() {
-        return chef;
+    public String getChefId() {
+        return chefId;
     }
 
-    public void setChef(User chef) {
-        this.chef = chef;
+    public void setChefId(String chefId) {
+        this.chefId = chefId;
     }
 
-    public User getClient() {
-        return client;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setClient(User client) {
-        this.client = client;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }
