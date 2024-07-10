@@ -30,7 +30,7 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     public boolean userHasProcessingOrder(User user) {
-        List<Order> orders = orderPersistencePort.findAllOrdersByUser(user);
+        List<Order> orders = orderPersistencePort.findAllOrdersByClientId(user);
         return orders.stream()
                 .anyMatch(order ->
                         order.getStatus() == OrderStatus.PENDING ||

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface IOrderPersistencePort {
     void saveOrder(Order order);
-    List<Order> findAllOrdersByUser(User user);
+    List<Order> findAllOrdersByClientId(User user);
 }
