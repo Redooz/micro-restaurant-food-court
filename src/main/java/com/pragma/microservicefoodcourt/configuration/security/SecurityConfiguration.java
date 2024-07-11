@@ -31,6 +31,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.PATCH,"/dishes/").hasAnyAuthority(Role.OWNER.name())
                 .antMatchers(HttpMethod.GET,"/dishes/").permitAll()
                 .antMatchers(HttpMethod.POST,"/orders/").hasAnyAuthority(Role.CUSTOMER.name())
+                .antMatchers(HttpMethod.PATCH,"/orders/*/assign").hasAnyAuthority(Role.EMPLOYEE.name())
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

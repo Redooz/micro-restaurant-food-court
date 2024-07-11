@@ -38,4 +38,9 @@ public class OrderHandler {
         ));
     }
 
+    public void assignOrderToEmployee(Long orderId) {
+        User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderServicePort.assignOrderToEmployee(loggedEmployee, orderId);
+    }
+
 }
