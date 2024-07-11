@@ -2,10 +2,12 @@ package com.pragma.microservicefoodcourt.application.dto.response;
 
 import com.pragma.microservicefoodcourt.application.dto.OrderDishItemDto;
 import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@Builder
 public record GetOrderResponse (
         List<OrderDishItemDto> orderDishes,
         LocalDate date,
