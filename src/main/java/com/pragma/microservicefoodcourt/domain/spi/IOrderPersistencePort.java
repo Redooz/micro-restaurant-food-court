@@ -11,4 +11,5 @@ public interface IOrderPersistencePort {
     void saveOrder(Order order);
     List<Order> findAllOrdersByClientId(User user);
     List<Order> findAllOrdersByStatusAndRestaurant(OrderStatus status, Restaurant restaurant, int page, int size);
+    void updateOrder(Order order);
 }

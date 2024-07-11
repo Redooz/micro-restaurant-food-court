@@ -56,4 +56,9 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
 
         return orderEntityMapper.toModelList(orderEntities);
     }
+
+    @Override
+    public void updateOrder(Order order) {
+        orderRepository.save(orderEntityMapper.toEntity(order));
+    }
 }
