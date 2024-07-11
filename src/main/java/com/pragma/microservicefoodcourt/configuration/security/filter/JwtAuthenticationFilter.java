@@ -56,14 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, getAuthorities(role.name()));
+        var authentication = new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(String role) {
-        return List.of(new SimpleGrantedAuthority(role));
-    }
 }
