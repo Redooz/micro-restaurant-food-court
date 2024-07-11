@@ -9,4 +9,5 @@ public class OrderConstant {
     public static final String DISH_IS_NOT_FROM_RESTAURANT = "Some dishes are not from restaurant with nit %s";
     public static final String USER_HAS_PROCESSING_ORDER = "User with documentId %s has a processing order";
     public static final String ORDER_EMPTY_LIST = "No data found for orders";
+    public static final String ORDER_NOT_FOUND = "Order with id %s not found";
 }

@@ -12,7 +12,6 @@ import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderE
 import com.pragma.microservicefoodcourt.domain.model.*;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
-import org.aspectj.weaver.ast.Or;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -71,6 +70,28 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         return orders;
+    }
+
+    @Override
+    public void assignOrderToEmployee(User loggedEmployee, Long orderId) {
+        Order order = orderPersistencePort.findOrderById(orderId).orElseThrow(
+                () -> new NoDataFoundException(
+                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
+                )
+        );
+
+        Restaurant foundRestaurant = restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
+        User foundEmployee = userApiPort.findUserById(loggedEmployee.getDocumentId());
+
+        if (!foundEmployee.getBoss().getDocumentId().equals(foundRestaurant.getOwnerId())) {
+            throw new EmployeeDoesNotBelongToRestaurantException(
+                    String.format(OrderConstant.EMPLOYEE_DOES_NOT_BELONG_TO_RESTAURANT, foundEmployee.getDocumentId())
+            );
+        }
+
+        order.setStatus(OrderStatus.IN_PROGRESS);
+        order.setChefId(loggedEmployee.getDocumentId());
+        orderPersistencePort.updateOrder(order);
     }
 
     private boolean userHasProcessingOrder(String id) {

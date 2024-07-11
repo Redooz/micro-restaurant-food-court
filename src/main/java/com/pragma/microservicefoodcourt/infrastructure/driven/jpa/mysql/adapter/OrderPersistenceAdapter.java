@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class OrderPersistenceAdapter implements IOrderPersistencePort {
@@ -55,6 +56,11 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
         List<OrderEntity> orderEntities = orderRepository.findAllByStatusAndRestaurant(status, restaurantEntity, pageable).getContent();
 
         return orderEntityMapper.toModelList(orderEntities);
+    }
+
+    @Override
+    public Optional<Order> findOrderById(Long orderId) {
+        return  orderRepository.findById(orderId).map(orderEntityMapper::toModel);
     }
 
     @Override
