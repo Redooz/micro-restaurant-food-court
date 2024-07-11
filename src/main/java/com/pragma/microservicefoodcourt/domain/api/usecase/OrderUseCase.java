@@ -4,7 +4,9 @@ import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
+import com.pragma.microservicefoodcourt.domain.constant.OrderConstant;
 import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
+import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
 import com.pragma.microservicefoodcourt.domain.model.*;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
@@ -30,16 +32,31 @@ public class OrderUseCase implements IOrderServicePort {
         restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
 
         if (!allDishesAreFromSameRestaurant(order)) {
-            throw new DishIsNotFromRestaurantException(order.getRestaurant().getNit());
+            throw new DishIsNotFromRestaurantException(
+                    String.format(OrderConstant.DISH_IS_NOT_FROM_RESTAURANT, order.getRestaurant().getNit())
+            );
         }
 
         if (userHasProcessingOrder(order.getClientId())) {
-            throw new UserHasProcessingOrderException(order.getClientId());
+            throw new UserHasProcessingOrderException(
+                    String.format(OrderConstant.USER_HAS_PROCESSING_ORDER, order.getClientId())
+            );
         }
 
         order.setDate(LocalDate.now());
         order.setStatus(OrderStatus.PENDING);
         orderPersistencePort.saveOrder(order);
+    }
+
+    @Override
+    public List<Order> findAllOrdersByStatusAndRestaurant(User loggedEmployee, OrderStatus status, Restaurant restaurant, int page, int size) {
+        if (!loggedEmployee.getBoss().getDocumentId().equals(restaurant.getOwnerId())) {
+            throw new EmployeeDoesNotBelongToRestaurantException(
+                    String.format(OrderConstant.EMPLOYEE_DOES_NOT_BELONG_TO_RESTAURANT, loggedEmployee.getDocumentId())
+            );
+        }
+
+        return orderPersistencePort.findAllOrdersByStatusAndRestaurant(status, restaurant, page, size);
     }
 
     private boolean userHasProcessingOrder(String id) {

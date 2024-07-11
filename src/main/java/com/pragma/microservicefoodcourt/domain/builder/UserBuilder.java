@@ -14,6 +14,7 @@ public class UserBuilder {
     private String name;
     private String password;
     private String phone;
+    private User boss;
 
     public UserBuilder setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
@@ -55,7 +56,12 @@ public class UserBuilder {
         return this;
     }
 
+    public UserBuilder setBoss(User boss) {
+        this.boss = boss;
+        return this;
+    }
+
     public User createUser() {
-        return new User(birthDate, role, documentId, email, lastName, name, password, phone);
+        return new User(birthDate, role, documentId, email, lastName, name, password, phone, boss);
     }
 }
