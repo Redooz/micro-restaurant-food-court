@@ -55,4 +55,16 @@ public class OrderControllerAdapter {
         return ResponseEntity.ok(orderHandler.findAllOrdersByStatusAndRestaurant(nit, OrderStatus.valueOf(status), page, size));
     }
 
+    @PatchMapping("/{orderId}/assign")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order assigned"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<Void> assignOrderToEmployee(@PathVariable Long orderId) {
+        orderHandler.assignOrderToEmployee(orderId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

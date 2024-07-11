@@ -64,4 +64,17 @@ class OrderControllerAdapterTest {
         assertFalse(response.getBody().isEmpty());
     }
 
+    @Test
+    @DisplayName("Assigning order to employee successfully returns status NO_CONTENT")
+    void assigningOrderToEmployeeSuccessfullyReturnsStatusNoContent() {
+        // Arrange
+        doNothing().when(orderHandler).assignOrderToEmployee(anyLong());
+
+        // Act
+        ResponseEntity<Void> response = orderControllerAdapter.assignOrderToEmployee(1L);
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
 }
