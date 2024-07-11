@@ -49,7 +49,7 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
     @Override
     public List<Order> findAllOrdersByStatusAndRestaurant(OrderStatus status, Restaurant restaurant, int page, int size) {
         RestaurantEntity restaurantEntity = restaurantEntityMapper.toEntity(restaurant);
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Sort sort = Sort.by(Sort.Direction.DESC, "date");
         Pageable pageable = PageRequest.of(page, size, sort);
 
         List<OrderEntity> orderEntities = orderRepository.findAllByStatusAndRestaurant(status, restaurantEntity, pageable).getContent();

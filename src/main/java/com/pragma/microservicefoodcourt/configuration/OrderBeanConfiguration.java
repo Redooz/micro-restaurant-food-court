@@ -21,6 +21,7 @@ public class OrderBeanConfiguration {
     private final IRestaurantEntityMapper restaurantEntityMapper;
     private final RestaurantBeanConfiguration restaurantBeanConfiguration;
     private final DishBeanConfiguration dishBeanConfiguration;
+    private final ApplicationBeanConfiguration applicationBeanConfiguration;
 
     @Bean
     public IOrderPersistencePort orderPersistencePort() {
@@ -32,7 +33,8 @@ public class OrderBeanConfiguration {
         return new OrderUseCase(
                 orderPersistencePort(),
                 restaurantBeanConfiguration.restaurantServicePort(),
-                dishBeanConfiguration.dishServicePort()
+                dishBeanConfiguration.dishServicePort(),
+                applicationBeanConfiguration.userApiPort()
         );
     }
 }
