@@ -17,8 +17,9 @@ public class User implements UserDetails {
     private String name;
     private String password;
     private String phone;
+    private User boss;
 
-    public User(LocalDate birthDate, Role role, String documentId, String email, String lastName, String name, String password, String phone) {
+    public User(LocalDate birthDate, Role role, String documentId, String email, String lastName, String name, String password, String phone, User boss) {
         this.birthDate = birthDate;
         this.role = role;
         this.documentId = documentId;
@@ -27,6 +28,7 @@ public class User implements UserDetails {
         this.name = name;
         this.password = password;
         this.phone = phone;
+        this.boss = boss;
     }
 
     public LocalDate getBirthDate() {
@@ -91,6 +93,14 @@ public class User implements UserDetails {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public User getBoss() {
+        return boss;
+    }
+
+    public void setBoss(User boss) {
+        this.boss = boss;
     }
 
     @Override

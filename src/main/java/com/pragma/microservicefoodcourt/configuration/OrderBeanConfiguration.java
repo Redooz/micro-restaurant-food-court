@@ -5,6 +5,7 @@ import com.pragma.microservicefoodcourt.domain.api.usecase.OrderUseCase;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter.OrderPersistenceAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IOrderEntityMapper;
+import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IRestaurantEntityMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.IOrderDishRepository;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository.IOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,14 @@ public class OrderBeanConfiguration {
     private final IOrderRepository orderRepository;
     private final IOrderDishRepository orderDishRepository;
     private final IOrderEntityMapper orderEntityMapper;
+    private final IRestaurantEntityMapper restaurantEntityMapper;
     private final RestaurantBeanConfiguration restaurantBeanConfiguration;
     private final DishBeanConfiguration dishBeanConfiguration;
+    private final ApplicationBeanConfiguration applicationBeanConfiguration;
 
     @Bean
     public IOrderPersistencePort orderPersistencePort() {
-        return new OrderPersistenceAdapter(orderRepository, orderDishRepository, orderEntityMapper);
+        return new OrderPersistenceAdapter(orderRepository, orderDishRepository, orderEntityMapper, restaurantEntityMapper);
     }
 
     @Bean
@@ -30,7 +33,8 @@ public class OrderBeanConfiguration {
         return new OrderUseCase(
                 orderPersistencePort(),
                 restaurantBeanConfiguration.restaurantServicePort(),
-                dishBeanConfiguration.dishServicePort()
+                dishBeanConfiguration.dishServicePort(),
+                applicationBeanConfiguration.userApiPort()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.pragma.microservicefoodcourt.infrastructure.driven.client.dto.response;
 
+import com.pragma.microservicefoodcourt.application.dto.BossItemDto;
 import com.pragma.microservicefoodcourt.domain.model.Role;
 import lombok.Builder;
 
@@ -13,6 +14,7 @@ public record GetUserResponse(
         String email,
         String lastName,
         String name,
-        String phone
+        String phone,
+        BossItemDto boss
 ) {
 }

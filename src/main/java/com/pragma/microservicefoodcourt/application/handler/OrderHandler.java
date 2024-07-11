@@ -1,13 +1,19 @@
 package com.pragma.microservicefoodcourt.application.handler;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
+import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.mapper.IOrderDtoMapper;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
+import com.pragma.microservicefoodcourt.domain.builder.RestaurantBuilder;
 import com.pragma.microservicefoodcourt.domain.model.Order;
+import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,4 +28,14 @@ public class OrderHandler {
         order.setClientId(loggedUser.getDocumentId());
         orderServicePort.saveOrder(order);
     }
+
+    public List<GetOrderResponse> findAllOrdersByStatusAndRestaurant(String nit, OrderStatus status, int page, int size) {
+        User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Restaurant restaurant = new RestaurantBuilder().setNit(nit).createRestaurant();
+
+        return orderDtoMapper.toResponseList(orderServicePort.findAllOrdersByStatusAndRestaurant(
+                loggedEmployee, status, restaurant, page, size
+        ));
+    }
+
 }
