@@ -24,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -155,5 +156,67 @@ class OrderUseCaseTest {
         );
         verify(orderPersistencePort, times(1)).findAllOrdersByStatusAndRestaurant(status, restaurant, 0, 10);
     }
+
+    @Test
+    @DisplayName("Should assign order to employee when employee belongs to restaurant")
+    void shouldAssignOrderToEmployeeWhenEmployeeBelongsToRestaurant() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
+        Order order = new OrderBuilder().setRestaurant(restaurant).setStatus(OrderStatus.PENDING).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(java.util.Optional.of(order));
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+
+        orderUseCase.assignOrderToEmployee(employee, order.getId());
+
+        verify(orderPersistencePort, times(1)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not assign order to employee when employee does not belong to restaurant")
+    void shouldNotAssignOrderToEmployeeWhenEmployeeDoesNotBelongToRestaurant() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        User notOwner = new UserBuilder().setDocumentId("notOwnerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(notOwner).createUser();
+        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.PENDING).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+
+        Long orderId = order.getId();
+        assertThrows(
+                EmployeeDoesNotBelongToRestaurantException.class,
+                () -> orderUseCase.assignOrderToEmployee(employee, orderId)
+        );
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not assign order to employee when order does not exist")
+    void shouldNotAssignOrderToEmployeeWhenOrderDoesNotExist() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
+        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.PENDING).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+
+        Long orderId = order.getId();
+        assertThrows(
+                NoDataFoundException.class,
+                () -> orderUseCase.assignOrderToEmployee(employee, orderId)
+        );
+
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+        }
 
 }
