@@ -23,6 +23,9 @@ repositories {
 }
 
 dependencies {
+    // twilio
+    implementation 'com.twilio.sdk:twilio:10.4.1'
+
     // swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 

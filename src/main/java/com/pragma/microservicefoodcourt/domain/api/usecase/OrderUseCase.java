@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
-import com.pragma.microservicefoodcourt.domain.api.INotifyServicePort;
+import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
@@ -17,20 +17,21 @@ import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class OrderUseCase implements IOrderServicePort {
     private final IOrderPersistencePort orderPersistencePort;
     private final IRestaurantServicePort restaurantServicePort;
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
-    private final INotifyServicePort notifyServicePort;
+    private final IVerificationServicePort verificationServicePort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, INotifyServicePort notifyServicePort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationServicePort notifyServicePort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
         this.userApiPort = userApiPort;
-        this.notifyServicePort = notifyServicePort;
+        this.verificationServicePort = notifyServicePort;
     }
 
     @Override
@@ -93,7 +94,9 @@ public class OrderUseCase implements IOrderServicePort {
 
         User client = userApiPort.findUserById(order.getClientId());
 
-        notifyServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
+        String status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
+
+        Logger.getGlobal().info("Notification status: " + status);
     }
 
     private Order orderValidation(User loggedEmployee, Long orderId) {
