@@ -77,4 +77,16 @@ class OrderControllerAdapterTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
+    @Test
+    @DisplayName("Finishing order successfully returns status NO_CONTENT")
+    void finishingOrderSuccessfullyReturnsStatusNoContent() {
+        // Arrange
+        doNothing().when(orderHandler).finishOrder(anyLong());
+
+        // Act
+        ResponseEntity<Void> response = orderControllerAdapter.finishOrder(1L);
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 }

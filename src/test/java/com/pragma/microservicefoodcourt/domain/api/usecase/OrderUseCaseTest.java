@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
+import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.DishBuilder;
 import com.pragma.microservicefoodcourt.domain.builder.OrderBuilder;
 import com.pragma.microservicefoodcourt.domain.builder.OrderDishBuilder;
@@ -12,8 +13,11 @@ import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
+import com.pragma.microservicefoodcourt.domain.exception.VerificationStatusException;
 import com.pragma.microservicefoodcourt.domain.model.*;
+import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +47,12 @@ class OrderUseCaseTest {
     @Mock
     private IUserApiPort userApiPort;
 
+    @Mock
+    private IVerificationServicePort verificationServicePort;
+
     @InjectMocks
     private OrderUseCase orderUseCase;
+
 
     @BeforeEach
     void setUp() {
@@ -218,6 +226,79 @@ class OrderUseCaseTest {
         );
 
         verify(orderPersistencePort, times(0)).updateOrder(order);
-        }
+    }
 
+    @Test
+    @DisplayName("Should finish order when order exists and verification status is pending")
+    void shouldFinishOrderWhenOrderExistsAndVerificationStatusIsPending() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
+        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
+        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
+        VerificationStatus status = VerificationStatus.PENDING;
+
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
+        when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
+        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+
+        orderUseCase.finishOrder(employee, order.getId());
+
+        verify(orderPersistencePort, times(1)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not finish order when order does not exist")
+    void shouldNotFinishOrderWhenOrderDoesNotExist() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
+        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
+        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
+        VerificationStatus status = VerificationStatus.PENDING;
+
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
+        when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
+        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+
+        Long orderId = order.getId();
+        assertThrows(
+                NoDataFoundException.class,
+                () -> orderUseCase.finishOrder(employee, orderId)
+        );
+
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not finish order when verification status is not pending")
+    void shouldNotFinishOrderWhenVerificationStatusIsNotPending() {
+        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
+        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
+        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
+        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
+        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
+        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
+        VerificationStatus status = VerificationStatus.FAILED;
+
+        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
+        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
+        when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
+        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+
+        Long orderId = order.getId();
+        assertThrows(
+                VerificationStatusException.class,
+                () -> orderUseCase.finishOrder(employee, orderId)
+        );
+
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+    }
 }
