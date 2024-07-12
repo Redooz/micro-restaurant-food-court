@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.application.dto.response;
 
 import com.pragma.microservicefoodcourt.application.dto.OrderDishItemDto;
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import lombok.Builder;
 
 import java.time.LocalDate;

@@ -10,4 +10,5 @@ public class OrderConstant {
     public static final String USER_HAS_PROCESSING_ORDER = "User with documentId %s has a processing order";
     public static final String ORDER_EMPTY_LIST = "No data found for orders";
     public static final String ORDER_NOT_FOUND = "Order with id %s not found";
+    public static final String SENT_VERIFICATION_STATUS_ERROR = "Failed to send verification status: %s";
 }

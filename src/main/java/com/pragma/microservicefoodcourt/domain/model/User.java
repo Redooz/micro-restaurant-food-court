@@ -1,5 +1,6 @@
 package com.pragma.microservicefoodcourt.domain.model;
 
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

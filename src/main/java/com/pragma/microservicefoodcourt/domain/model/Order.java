@@ -1,5 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.model;
 
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
+
 import java.time.LocalDate;
 import java.util.List;
 

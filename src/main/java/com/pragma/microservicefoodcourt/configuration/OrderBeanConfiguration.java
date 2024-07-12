@@ -1,8 +1,10 @@
 package com.pragma.microservicefoodcourt.configuration;
 
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
+import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.api.usecase.OrderUseCase;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TwilioVerificationServiceAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter.OrderPersistenceAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IOrderEntityMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IRestaurantEntityMapper;
@@ -29,12 +31,18 @@ public class OrderBeanConfiguration {
     }
 
     @Bean
+    public IVerificationServicePort verificationServicePort() {
+        return new TwilioVerificationServiceAdapter();
+    }
+
+    @Bean
     public IOrderServicePort orderServicePort() {
         return new OrderUseCase(
                 orderPersistencePort(),
                 restaurantBeanConfiguration.restaurantServicePort(),
                 dishBeanConfiguration.dishServicePort(),
-                applicationBeanConfiguration.userApiPort()
+                applicationBeanConfiguration.userApiPort(),
+                verificationServicePort()
         );
     }
 }

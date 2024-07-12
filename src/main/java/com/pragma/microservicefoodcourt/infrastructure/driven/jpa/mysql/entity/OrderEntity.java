@@ -1,6 +1,6 @@
 package com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity;
 
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

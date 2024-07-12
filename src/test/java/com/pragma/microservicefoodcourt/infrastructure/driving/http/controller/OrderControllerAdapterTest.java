@@ -3,7 +3,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.handler.OrderHandler;
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -77,4 +77,16 @@ class OrderControllerAdapterTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
+    @Test
+    @DisplayName("Finishing order successfully returns status NO_CONTENT")
+    void finishingOrderSuccessfullyReturnsStatusNoContent() {
+        // Arrange
+        doNothing().when(orderHandler).finishOrder(anyLong());
+
+        // Act
+        ResponseEntity<Void> response = orderControllerAdapter.finishOrder(1L);
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 }

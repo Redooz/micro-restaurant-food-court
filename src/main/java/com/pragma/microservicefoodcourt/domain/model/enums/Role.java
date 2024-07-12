@@ -1,4 +1,4 @@
-package com.pragma.microservicefoodcourt.domain.model;
+package com.pragma.microservicefoodcourt.domain.model.enums;
 
 public enum Role {
     ADMIN,

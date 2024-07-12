@@ -5,7 +5,7 @@ import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.exception.NotOwnerException;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
-import com.pragma.microservicefoodcourt.domain.model.Role;
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import com.pragma.microservicefoodcourt.domain.model.User;
 import com.pragma.microservicefoodcourt.domain.spi.IRestaurantPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;

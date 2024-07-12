@@ -1,15 +1,16 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
+import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.constant.OrderConstant;
-import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
-import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
+import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
+import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 
@@ -22,12 +23,14 @@ public class OrderUseCase implements IOrderServicePort {
     private final IRestaurantServicePort restaurantServicePort;
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
+    private final IVerificationServicePort verificationServicePort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationServicePort notifyServicePort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
         this.userApiPort = userApiPort;
+        this.verificationServicePort = notifyServicePort;
     }
 
     @Override
@@ -74,12 +77,41 @@ public class OrderUseCase implements IOrderServicePort {
 
     @Override
     public void assignOrderToEmployee(User loggedEmployee, Long orderId) {
-        Order order = orderPersistencePort.findOrderById(orderId).orElseThrow(
+        Order order = orderValidation(loggedEmployee, orderId);
+
+        order.setStatus(OrderStatus.IN_PROGRESS);
+        order.setChefId(loggedEmployee.getDocumentId());
+        orderPersistencePort.updateOrder(order);
+    }
+
+    @Override
+    public void finishOrder(User loggedEmployee, Long orderId) {
+        Order order = orderValidation(loggedEmployee, orderId);
+        User client = userApiPort.findUserById(order.getClientId());
+
+        VerificationStatus status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
+
+        if (status != VerificationStatus.PENDING) {
+            throw new VerificationStatusException(
+                    String.format(OrderConstant.SENT_VERIFICATION_STATUS_ERROR, status)
+            );
+        }
+
+        order.setStatus(OrderStatus.READY);
+        orderPersistencePort.updateOrder(order);
+    }
+
+    @Override
+    public Order findOrderById(Long orderId) {
+        return orderPersistencePort.findOrderById(orderId).orElseThrow(
                 () -> new NoDataFoundException(
                         String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
                 )
         );
+    }
 
+    private Order orderValidation(User loggedEmployee, Long orderId) {
+        Order order = this.findOrderById(orderId);
         Restaurant foundRestaurant = restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
         User foundEmployee = userApiPort.findUserById(loggedEmployee.getDocumentId());
 
@@ -89,9 +121,7 @@ public class OrderUseCase implements IOrderServicePort {
             );
         }
 
-        order.setStatus(OrderStatus.IN_PROGRESS);
-        order.setChefId(loggedEmployee.getDocumentId());
-        orderPersistencePort.updateOrder(order);
+        return order;
     }
 
     private boolean userHasProcessingOrder(String id) {

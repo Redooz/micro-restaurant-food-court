@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.configuration.security;
 
 import com.pragma.microservicefoodcourt.configuration.security.filter.JwtAuthenticationFilter;
-import com.pragma.microservicefoodcourt.domain.model.Role;
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +32,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.GET,"/dishes/").permitAll()
                 .antMatchers(HttpMethod.POST,"/orders/").hasAnyAuthority(Role.CUSTOMER.name())
                 .antMatchers(HttpMethod.PATCH,"/orders/*/assign").hasAnyAuthority(Role.EMPLOYEE.name())
+                .antMatchers(HttpMethod.PATCH,"/orders/*/finish").hasAnyAuthority(Role.EMPLOYEE.name())
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

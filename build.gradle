@@ -22,7 +22,18 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'io.jsonwebtoken' && details.requested.name == 'jjwt-jackson') {
+            details.useVersion '0.12.5'
+        }
+    }
+}
+
 dependencies {
+    // twilio
+    implementation 'com.twilio.sdk:twilio:10.4.1'
+
     // swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
@@ -59,3 +70,5 @@ tasks.named('bootBuildImage') {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+

@@ -1,6 +1,6 @@
 package com.pragma.microservicefoodcourt.configuration.security.service;
 
-import com.pragma.microservicefoodcourt.domain.model.Role;
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

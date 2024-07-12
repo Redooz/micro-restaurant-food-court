@@ -1,6 +1,6 @@
 package com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.repository;
 
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.OrderEntity;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.entity.RestaurantEntity;
 import org.springframework.data.domain.Page;
