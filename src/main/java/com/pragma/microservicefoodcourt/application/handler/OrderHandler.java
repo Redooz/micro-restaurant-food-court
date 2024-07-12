@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.application.handler;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.DeliverOrderRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.mapper.IOrderDtoMapper;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
@@ -46,6 +47,11 @@ public class OrderHandler {
     public void finishOrder(Long orderId) {
         User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderServicePort.finishOrder(loggedEmployee, orderId);
+    }
+
+    public void deliverOrder(Long orderId, DeliverOrderRequest request) {
+        User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderServicePort.deliverOrder(loggedEmployee, orderId, request.code());
     }
 
 }

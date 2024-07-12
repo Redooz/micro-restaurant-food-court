@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.DeliverOrderRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.handler.OrderHandler;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
@@ -76,6 +77,18 @@ public class OrderControllerAdapter {
     @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> finishOrder(@PathVariable Long orderId) {
         orderHandler.finishOrder(orderId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{orderId}/deliver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order delivered"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<Void> deliverOrder(@PathVariable Long orderId, @RequestBody @Valid DeliverOrderRequest request) {
+        orderHandler.deliverOrder(orderId, request);
         return ResponseEntity.noContent().build();
     }
 

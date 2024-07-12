@@ -1,9 +1,6 @@
 package com.pragma.microservicefoodcourt.infrastructure.driving.http.exceptionhandler;
 
-import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
-import com.pragma.microservicefoodcourt.domain.exception.VerificationStatusException;
+import com.pragma.microservicefoodcourt.domain.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +50,15 @@ public class    OrderControllerAdvisor {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(OrderStatusException.class)
+    public ResponseEntity<ExceptionResponse> handleOrderStatusException(OrderStatusException e) {
+        ExceptionResponse response = new ExceptionResponse(
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST.toString(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
