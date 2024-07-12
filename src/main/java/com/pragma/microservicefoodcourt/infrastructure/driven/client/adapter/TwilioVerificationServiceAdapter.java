@@ -4,6 +4,7 @@ import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.twilio.rest.verify.v2.service.Verification;
+import com.twilio.rest.verify.v2.service.VerificationCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -18,5 +19,15 @@ public class TwilioVerificationServiceAdapter implements IVerificationServicePor
                 .create();
 
         return VerificationStatus.valueOf(verification.getStatus().toUpperCase());
+    }
+
+    @Override
+    public VerificationStatus verifyCode(String phone, String code) {
+        VerificationCheck verificationCheck = VerificationCheck.creator(serviceSid)
+                .setTo(phone)
+                .setCode(code)
+                .create();
+
+        return VerificationStatus.valueOf(verificationCheck.getStatus().toUpperCase());
     }
 }

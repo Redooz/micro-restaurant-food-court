@@ -76,6 +76,15 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
+    public Order findOrderById(Long orderId) {
+        return orderPersistencePort.findOrderById(orderId).orElseThrow(
+                () -> new NoDataFoundException(
+                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
+                )
+        );
+    }
+
+    @Override
     public void assignOrderToEmployee(User loggedEmployee, Long orderId) {
         Order order = orderValidation(loggedEmployee, orderId);
 
@@ -102,12 +111,26 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
-    public Order findOrderById(Long orderId) {
-        return orderPersistencePort.findOrderById(orderId).orElseThrow(
-                () -> new NoDataFoundException(
-                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
-                )
-        );
+    public void deliverOrder(User loggedEmployee, Long orderId, String code) {
+        Order order = orderValidation(loggedEmployee, orderId);
+        User client = userApiPort.findUserById(order.getClientId());
+
+        if (order.getStatus() != OrderStatus.READY) {
+            throw new OrderStatusException(
+                    String.format(OrderConstant.CANT_CHANGE_ORDER_STATUS, order.getStatus(), OrderStatus.READY)
+            );
+        }
+
+        VerificationStatus status = verificationServicePort.verifyCode(client.getPhone(), code);
+
+        if (status != VerificationStatus.APPROVED) {
+            throw new VerificationStatusException(
+                    String.format(OrderConstant.VERIFICATION_STATUS_ERROR, orderId, status)
+            );
+        }
+
+        order.setStatus(OrderStatus.DELIVERED);
+        orderPersistencePort.updateOrder(order);
     }
 
     private Order orderValidation(User loggedEmployee, Long orderId) {
