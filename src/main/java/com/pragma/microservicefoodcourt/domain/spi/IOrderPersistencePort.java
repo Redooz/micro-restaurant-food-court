@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.spi;
 
 import com.pragma.microservicefoodcourt.domain.model.Order;
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.User;
 

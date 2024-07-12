@@ -1,7 +1,8 @@
 package com.pragma.microservicefoodcourt.domain.api;
 
-import com.pragma.microservicefoodcourt.domain.model.NotificationMethod;
+import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
+import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 
 public interface IVerificationServicePort {
-    String notifyUser(String phone, NotificationMethod method);
+    VerificationStatus notifyUser(String phone, NotificationMethod method);
 }

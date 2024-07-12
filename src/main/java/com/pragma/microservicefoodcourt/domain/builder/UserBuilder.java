@@ -1,6 +1,6 @@
 package com.pragma.microservicefoodcourt.domain.builder;
 
-import com.pragma.microservicefoodcourt.domain.model.Role;
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import com.pragma.microservicefoodcourt.domain.model.User;
 
 import java.time.LocalDate;

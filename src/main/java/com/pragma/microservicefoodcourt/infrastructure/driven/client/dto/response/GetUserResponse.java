@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.infrastructure.driven.client.dto.response;
 
 import com.pragma.microservicefoodcourt.application.dto.BossItemDto;
-import com.pragma.microservicefoodcourt.domain.model.Role;
+import com.pragma.microservicefoodcourt.domain.model.enums.Role;
 import lombok.Builder;
 
 import java.time.LocalDate;

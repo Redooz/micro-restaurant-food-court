@@ -6,7 +6,7 @@ import com.pragma.microservicefoodcourt.application.mapper.IOrderDtoMapper;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.RestaurantBuilder;
 import com.pragma.microservicefoodcourt.domain.model.Order;
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.domain.model.Restaurant;
 import com.pragma.microservicefoodcourt.domain.model.User;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +41,11 @@ public class OrderHandler {
     public void assignOrderToEmployee(Long orderId) {
         User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderServicePort.assignOrderToEmployee(loggedEmployee, orderId);
+    }
+
+    public void finishOrder(Long orderId) {
+        User loggedEmployee = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderServicePort.finishOrder(loggedEmployee, orderId);
     }
 
 }

@@ -3,6 +3,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.exceptionha
 import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
+import com.pragma.microservicefoodcourt.domain.exception.VerificationStatusException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 
 @ControllerAdvice
 @RequiredArgsConstructor
-public class OrderControllerAdvisor {
+public class    OrderControllerAdvisor {
     @ExceptionHandler(DishIsNotFromRestaurantException.class)
     public ResponseEntity<ExceptionResponse> handleDishIsNotFromRestaurantException(DishIsNotFromRestaurantException e) {
         ExceptionResponse response = new ExceptionResponse(
@@ -42,5 +43,15 @@ public class OrderControllerAdvisor {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    @ExceptionHandler(VerificationStatusException.class)
+    public ResponseEntity<ExceptionResponse> handleVerificationStatusException(VerificationStatusException e) {
+        ExceptionResponse response = new ExceptionResponse(
+                e.getMessage(),
+                HttpStatus.CONFLICT.toString(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }

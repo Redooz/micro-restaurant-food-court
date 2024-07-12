@@ -3,7 +3,7 @@ package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.handler.OrderHandler;
-import com.pragma.microservicefoodcourt.domain.model.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.infrastructure.driving.http.constant.GetAllConstant;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -64,6 +64,18 @@ public class OrderControllerAdapter {
     @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Void> assignOrderToEmployee(@PathVariable Long orderId) {
         orderHandler.assignOrderToEmployee(orderId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{orderId}/finish")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order finished"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<Void> finishOrder(@PathVariable Long orderId) {
+        orderHandler.finishOrder(orderId);
         return ResponseEntity.noContent().build();
     }
 

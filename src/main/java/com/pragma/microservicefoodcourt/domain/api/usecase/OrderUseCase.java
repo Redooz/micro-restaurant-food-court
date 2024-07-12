@@ -6,18 +6,17 @@ import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.constant.OrderConstant;
-import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
-import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
-import com.pragma.microservicefoodcourt.domain.exception.UserHasProcessingOrderException;
+import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
+import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
+import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class OrderUseCase implements IOrderServicePort {
     private final IOrderPersistencePort orderPersistencePort;
@@ -88,15 +87,27 @@ public class OrderUseCase implements IOrderServicePort {
     @Override
     public void finishOrder(User loggedEmployee, Long orderId) {
         Order order = orderValidation(loggedEmployee, orderId);
+        User client = userApiPort.findUserById(order.getClientId());
+
+        VerificationStatus status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
+
+        if (status != VerificationStatus.PENDING) {
+            throw new VerificationStatusException(
+                    String.format(OrderConstant.SENT_VERIFICATION_STATUS_ERROR, status)
+            );
+        }
 
         order.setStatus(OrderStatus.READY);
         orderPersistencePort.updateOrder(order);
+    }
 
-        User client = userApiPort.findUserById(order.getClientId());
-
-        String status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
-
-        Logger.getGlobal().info("Notification status: " + status);
+    @Override
+    public Order findOrderById(Long orderId) {
+        return orderPersistencePort.findOrderById(orderId).orElseThrow(
+                () -> new NoDataFoundException(
+                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
+                )
+        );
     }
 
     private Order orderValidation(User loggedEmployee, Long orderId) {
@@ -111,15 +122,6 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         return order;
-    }
-
-    @Override
-    public Order findOrderById(Long orderId) {
-        return orderPersistencePort.findOrderById(orderId).orElseThrow(
-                () -> new NoDataFoundException(
-                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
-                )
-        );
     }
 
     private boolean userHasProcessingOrder(String id) {

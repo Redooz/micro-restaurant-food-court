@@ -13,6 +13,7 @@ import com.pragma.microservicefoodcourt.domain.exception.DishIsNotFromRestaurant
 import com.pragma.microservicefoodcourt.domain.exception.EmployeeDoesNotBelongToRestaurantException;
 import com.pragma.microservicefoodcourt.domain.exception.NoDataFoundException;
 import com.pragma.microservicefoodcourt.domain.model.*;
+import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 import org.junit.jupiter.api.BeforeEach;
