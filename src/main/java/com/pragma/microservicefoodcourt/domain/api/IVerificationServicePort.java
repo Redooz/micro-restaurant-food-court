@@ -5,4 +5,6 @@ import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 
 public interface IVerificationServicePort {
     VerificationStatus notifyUser(String phone, NotificationMethod method);
+
+    VerificationStatus verifyCode(String phone, String code);
 }

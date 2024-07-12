@@ -11,4 +11,6 @@ public class OrderConstant {
     public static final String ORDER_EMPTY_LIST = "No data found for orders";
     public static final String ORDER_NOT_FOUND = "Order with id %s not found";
     public static final String SENT_VERIFICATION_STATUS_ERROR = "Failed to send verification status: %s";
+    public static final String VERIFICATION_STATUS_ERROR = "Failed to verify order with id %s, got status: %s";
+    public static final String CANT_CHANGE_ORDER_STATUS = "Can't change order status from %s to %s";
 }

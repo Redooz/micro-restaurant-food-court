@@ -13,4 +13,6 @@ public interface IOrderServicePort {
     Order findOrderById(Long orderId);
     void assignOrderToEmployee(User loggedEmployee, Long orderId);
     void finishOrder(User loggedEmployee, Long orderId);
+    void deliverOrder(User loggedEmployee, Long orderId, String code);
+
 }
