@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
+import com.pragma.microservicefoodcourt.domain.api.INotifyServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
@@ -22,12 +23,14 @@ public class OrderUseCase implements IOrderServicePort {
     private final IRestaurantServicePort restaurantServicePort;
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
+    private final INotifyServicePort notifyServicePort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, INotifyServicePort notifyServicePort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
         this.userApiPort = userApiPort;
+        this.notifyServicePort = notifyServicePort;
     }
 
     @Override
@@ -74,12 +77,27 @@ public class OrderUseCase implements IOrderServicePort {
 
     @Override
     public void assignOrderToEmployee(User loggedEmployee, Long orderId) {
-        Order order = orderPersistencePort.findOrderById(orderId).orElseThrow(
-                () -> new NoDataFoundException(
-                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
-                )
-        );
+        Order order = orderValidation(loggedEmployee, orderId);
 
+        order.setStatus(OrderStatus.IN_PROGRESS);
+        order.setChefId(loggedEmployee.getDocumentId());
+        orderPersistencePort.updateOrder(order);
+    }
+
+    @Override
+    public void finishOrder(User loggedEmployee, Long orderId) {
+        Order order = orderValidation(loggedEmployee, orderId);
+
+        order.setStatus(OrderStatus.READY);
+        orderPersistencePort.updateOrder(order);
+
+        User client = userApiPort.findUserById(order.getClientId());
+
+        notifyServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
+    }
+
+    private Order orderValidation(User loggedEmployee, Long orderId) {
+        Order order = this.findOrderById(orderId);
         Restaurant foundRestaurant = restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
         User foundEmployee = userApiPort.findUserById(loggedEmployee.getDocumentId());
 
@@ -89,9 +107,16 @@ public class OrderUseCase implements IOrderServicePort {
             );
         }
 
-        order.setStatus(OrderStatus.IN_PROGRESS);
-        order.setChefId(loggedEmployee.getDocumentId());
-        orderPersistencePort.updateOrder(order);
+        return order;
+    }
+
+    @Override
+    public Order findOrderById(Long orderId) {
+        return orderPersistencePort.findOrderById(orderId).orElseThrow(
+                () -> new NoDataFoundException(
+                        String.format(OrderConstant.ORDER_NOT_FOUND, orderId)
+                )
+        );
     }
 
     private boolean userHasProcessingOrder(String id) {
