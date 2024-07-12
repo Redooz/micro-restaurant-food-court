@@ -92,4 +92,15 @@ public class OrderControllerAdapter {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{orderId}/cancel")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order canceled"),
+            @ApiResponse(responseCode = "403", description = "Permission denied"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
+        orderHandler.cancelOrder(orderId);
+        return ResponseEntity.noContent().build();
+    }
 }
