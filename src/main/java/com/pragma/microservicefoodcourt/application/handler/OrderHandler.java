@@ -54,4 +54,9 @@ public class OrderHandler {
         orderServicePort.deliverOrder(loggedEmployee, orderId, request.code());
     }
 
+    public void cancelOrder(Long orderId) {
+        User loggedCustomer = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderServicePort.cancelOrder(loggedCustomer, orderId);
+    }
+
 }

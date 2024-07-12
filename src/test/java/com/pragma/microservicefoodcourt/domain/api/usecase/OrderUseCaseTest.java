@@ -398,4 +398,54 @@ class OrderUseCaseTest {
 
         verify(orderPersistencePort, times(0)).updateOrder(order);
     }
+
+    @Test
+    @DisplayName("Should cancel order when order exists and order status is pending")
+    void shouldCancelOrderWhenOrderExistsAndOrderStatusIsPending() {
+        User client = new UserBuilder().setDocumentId("clientId").createUser();
+        Order order = new OrderBuilder().setId(1L).setClientId(client.getDocumentId()).setStatus(OrderStatus.PENDING).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
+        when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);
+
+        orderUseCase.cancelOrder(client, order.getId());
+
+        verify(orderPersistencePort, times(1)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not cancel order when order does not exist")
+    void shouldNotCancelOrderWhenOrderDoesNotExist() {
+        User client = new UserBuilder().setDocumentId("clientId").createUser();
+        Order order = new OrderBuilder().setId(1L).setClientId(client.getDocumentId()).setStatus(OrderStatus.PENDING).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
+        when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);
+
+        Long orderId = order.getId();
+        assertThrows(
+                NoDataFoundException.class,
+                () -> orderUseCase.cancelOrder(client, orderId)
+        );
+
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+    }
+
+    @Test
+    @DisplayName("Should not cancel order when order status is not pending")
+    void shouldNotCancelOrderWhenOrderStatusIsNotPending() {
+        User client = new UserBuilder().setDocumentId("clientId").createUser();
+        Order order = new OrderBuilder().setId(1L).setClientId(client.getDocumentId()).setStatus(OrderStatus.IN_PROGRESS).createOrder();
+
+        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
+        when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);
+
+        Long orderId = order.getId();
+        assertThrows(
+                OrderStatusException.class,
+                () -> orderUseCase.cancelOrder(client, orderId)
+        );
+
+        verify(orderPersistencePort, times(0)).updateOrder(order);
+    }
 }

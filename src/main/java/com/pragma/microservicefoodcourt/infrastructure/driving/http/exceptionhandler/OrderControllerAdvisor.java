@@ -61,4 +61,14 @@ public class    OrderControllerAdvisor {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    @ExceptionHandler(UserDoesNotOwnOrderException.class)
+    public ResponseEntity<ExceptionResponse> handleUserDoesNotOwnOrderException(UserDoesNotOwnOrderException e) {
+        ExceptionResponse response = new ExceptionResponse(
+                e.getMessage(),
+                HttpStatus.FORBIDDEN.toString(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 }
