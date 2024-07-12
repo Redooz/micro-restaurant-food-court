@@ -86,7 +86,7 @@ public class OrderUseCase implements IOrderServicePort {
 
     @Override
     public void assignOrderToEmployee(User loggedEmployee, Long orderId) {
-        Order order = orderValidation(loggedEmployee, orderId);
+        Order order = orderValidationForEmployee(loggedEmployee, orderId);
 
         order.setStatus(OrderStatus.IN_PROGRESS);
         order.setChefId(loggedEmployee.getDocumentId());
@@ -95,7 +95,7 @@ public class OrderUseCase implements IOrderServicePort {
 
     @Override
     public void finishOrder(User loggedEmployee, Long orderId) {
-        Order order = orderValidation(loggedEmployee, orderId);
+        Order order = orderValidationForEmployee(loggedEmployee, orderId);
         User client = userApiPort.findUserById(order.getClientId());
 
         VerificationStatus status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
@@ -112,7 +112,7 @@ public class OrderUseCase implements IOrderServicePort {
 
     @Override
     public void deliverOrder(User loggedEmployee, Long orderId, String code) {
-        Order order = orderValidation(loggedEmployee, orderId);
+        Order order = orderValidationForEmployee(loggedEmployee, orderId);
         User client = userApiPort.findUserById(order.getClientId());
 
         if (order.getStatus() != OrderStatus.READY) {
@@ -133,7 +133,21 @@ public class OrderUseCase implements IOrderServicePort {
         orderPersistencePort.updateOrder(order);
     }
 
-    private Order orderValidation(User loggedEmployee, Long orderId) {
+    @Override
+    public void cancelOrder(User loggedCustomer, Long orderId) {
+        Order order = orderValidationForCustomer(loggedCustomer, orderId);
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderStatusException(
+                    String.format(OrderConstant.CANT_CHANGE_ORDER_STATUS, order.getStatus(), OrderStatus.DELIVERED)
+            );
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderPersistencePort.updateOrder(order);
+    }
+
+    private Order orderValidationForEmployee(User loggedEmployee, Long orderId) {
         Order order = this.findOrderById(orderId);
         Restaurant foundRestaurant = restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit());
         User foundEmployee = userApiPort.findUserById(loggedEmployee.getDocumentId());
@@ -141,6 +155,19 @@ public class OrderUseCase implements IOrderServicePort {
         if (!foundEmployee.getBoss().getDocumentId().equals(foundRestaurant.getOwnerId())) {
             throw new EmployeeDoesNotBelongToRestaurantException(
                     String.format(OrderConstant.EMPLOYEE_DOES_NOT_BELONG_TO_RESTAURANT, foundEmployee.getDocumentId())
+            );
+        }
+
+        return order;
+    }
+
+    private Order orderValidationForCustomer(User loggedCustomer, Long orderId) {
+        Order order = this.findOrderById(orderId);
+        User foundCustomer = userApiPort.findUserById(loggedCustomer.getDocumentId());
+
+        if (!foundCustomer.getDocumentId().equals(order.getClientId())) {
+            throw new UserDoesNotOwnOrderException(
+                    String.format(OrderConstant.USER_DOES_NOT_OWN_ORDER, foundCustomer.getDocumentId(), order.getId())
             );
         }
 

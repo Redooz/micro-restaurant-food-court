@@ -13,4 +13,5 @@ public class OrderConstant {
     public static final String SENT_VERIFICATION_STATUS_ERROR = "Failed to send verification status: %s";
     public static final String VERIFICATION_STATUS_ERROR = "Failed to verify order with id %s, got status: %s";
     public static final String CANT_CHANGE_ORDER_STATUS = "Can't change order status from %s to %s";
+    public static final String USER_DOES_NOT_OWN_ORDER = "User with documentId %s does not own order with id %s";
 }
