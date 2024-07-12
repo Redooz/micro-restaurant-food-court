@@ -1,6 +1,7 @@
 package com.pragma.microservicefoodcourt.infrastructure.driving.http.controller;
 
 import com.pragma.microservicefoodcourt.application.dto.request.CreateOrderRequest;
+import com.pragma.microservicefoodcourt.application.dto.request.DeliverOrderRequest;
 import com.pragma.microservicefoodcourt.application.dto.response.GetOrderResponse;
 import com.pragma.microservicefoodcourt.application.handler.OrderHandler;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
@@ -85,6 +86,21 @@ class OrderControllerAdapterTest {
 
         // Act
         ResponseEntity<Void> response = orderControllerAdapter.finishOrder(1L);
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Delivering order successfully returns status NO_CONTENT")
+    void deliveringOrderSuccessfullyReturnsStatusNoContent() {
+        Long orderId = 1L;
+        DeliverOrderRequest request = DeliverOrderRequest.builder().code("123456").build();
+        // Arrange
+        doNothing().when(orderHandler).deliverOrder(anyLong(), any(DeliverOrderRequest.class));
+
+        // Act
+        ResponseEntity<Void> response = orderControllerAdapter.deliverOrder(1L, request);
 
         // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
