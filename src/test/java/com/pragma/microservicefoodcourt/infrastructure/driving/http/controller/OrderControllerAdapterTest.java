@@ -105,4 +105,17 @@ class OrderControllerAdapterTest {
         // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
+
+    @Test
+    @DisplayName("Canceling order successfully returns status NO_CONTENT")
+    void cancelingOrderSuccessfullyReturnsStatusNoContent() {
+        // Arrange
+        doNothing().when(orderHandler).cancelOrder(anyLong());
+
+        // Act
+        ResponseEntity<Void> response = orderControllerAdapter.cancelOrder(1L);
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 }
