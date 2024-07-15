@@ -15,8 +15,9 @@ public class Traceability {
     private String clientEmail;
     private String clientId;
     private String employeeEmail;
+    private String restaurantNit;
 
-    public Traceability(LocalDateTime startTime, LocalDateTime endTime, String employeeId, String id, Long orderId, OrderStatus lastStatus, OrderStatus newStatus, String clientEmail, String clientId, String employeeEmail) {
+    public Traceability(LocalDateTime startTime, LocalDateTime endTime, String employeeId, String id, Long orderId, OrderStatus lastStatus, OrderStatus newStatus, String clientEmail, String clientId, String employeeEmail, String restaurantNit) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.employeeId = employeeId;
@@ -27,10 +28,15 @@ public class Traceability {
         this.clientEmail = clientEmail;
         this.clientId = clientId;
         this.employeeEmail = employeeEmail;
+        this.restaurantNit = restaurantNit;
     }
 
     public LocalDateTime getStartTime() {
         return startTime;
+    }
+
+    public void getStartDate(LocalDateTime startDate) {
+        this.startTime = startDate;
     }
 
     public void setStartTime(LocalDateTime startTime) {
@@ -107,5 +113,13 @@ public class Traceability {
 
     public void setEmployeeEmail(String employeeEmail) {
         this.employeeEmail = employeeEmail;
+    }
+
+    public String getRestaurantNit() {
+        return restaurantNit;
+    }
+
+    public void setRestaurantNit(String restaurantNit) {
+        this.restaurantNit = restaurantNit;
     }
 }

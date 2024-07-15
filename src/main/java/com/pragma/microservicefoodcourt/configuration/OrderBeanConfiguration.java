@@ -21,8 +21,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class OrderBeanConfiguration {
-    private final ITraceabilityFeignClient traceabilityFeignClient;
-    private final ITraceabilityDtoMapper traceabilityDtoMapper;
     private final IOrderRepository orderRepository;
     private final IOrderDishRepository orderDishRepository;
     private final IOrderEntityMapper orderEntityMapper;
@@ -42,11 +40,6 @@ public class OrderBeanConfiguration {
     }
 
     @Bean
-    public ITraceabilityApiPort traceabilityApiPort() {
-        return new TraceabilityApiAdapter(traceabilityFeignClient, traceabilityDtoMapper);
-    }
-
-    @Bean
     public IOrderServicePort orderServicePort() {
         return new OrderUseCase(
                 orderPersistencePort(),
@@ -54,7 +47,7 @@ public class OrderBeanConfiguration {
                 dishBeanConfiguration.dishServicePort(),
                 applicationBeanConfiguration.userApiPort(),
                 verificationServicePort(),
-                traceabilityApiPort()
+                applicationBeanConfiguration.traceabilityApiPort()
         );
     }
 }
