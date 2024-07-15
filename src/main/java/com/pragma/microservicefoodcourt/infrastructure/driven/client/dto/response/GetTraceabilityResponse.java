@@ -5,7 +5,7 @@ import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import java.time.LocalDate;
 
 public record GetTraceabilityResponse(
-        Long id,
+        String id,
         Long orderId,
         String clientId,
         String clientEmail,

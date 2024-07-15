@@ -106,7 +106,6 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setStatus(OrderStatus.IN_PROGRESS);
         order.setChefId(loggedEmployee.getDocumentId());
-        orderPersistencePort.updateOrder(order);
 
         Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
 
@@ -116,6 +115,7 @@ public class OrderUseCase implements IOrderServicePort {
         traceability.setNewStatus(order.getStatus());
 
         traceabilityApiPort.updateTraceability(orderId, traceability);
+        orderPersistencePort.updateOrder(order);
     }
 
     @Override
@@ -132,7 +132,6 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         order.setStatus(OrderStatus.READY);
-        orderPersistencePort.updateOrder(order);
 
         Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
 
@@ -141,6 +140,7 @@ public class OrderUseCase implements IOrderServicePort {
         traceability.setEndTime(LocalDateTime.now());
 
         traceabilityApiPort.updateTraceability(orderId, traceability);
+        orderPersistencePort.updateOrder(order);
     }
 
     @Override
@@ -163,7 +163,6 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         order.setStatus(OrderStatus.DELIVERED);
-        orderPersistencePort.updateOrder(order);
 
         Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
 
@@ -171,6 +170,7 @@ public class OrderUseCase implements IOrderServicePort {
         traceability.setNewStatus(order.getStatus());
 
         traceabilityApiPort.updateTraceability(orderId, traceability);
+        orderPersistencePort.updateOrder(order);
     }
 
     @Override
@@ -184,7 +184,6 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         order.setStatus(OrderStatus.CANCELLED);
-        orderPersistencePort.updateOrder(order);
 
         Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
 
@@ -192,6 +191,7 @@ public class OrderUseCase implements IOrderServicePort {
         traceability.setNewStatus(order.getStatus());
 
         traceabilityApiPort.updateTraceability(orderId, traceability);
+        orderPersistencePort.updateOrder(order);
     }
 
     private Order orderValidationForEmployee(User loggedEmployee, Long orderId) {
