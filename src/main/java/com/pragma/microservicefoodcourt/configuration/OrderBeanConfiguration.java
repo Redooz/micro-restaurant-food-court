@@ -4,7 +4,11 @@ import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.api.usecase.OrderUseCase;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
+import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TraceabilityApiAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TwilioVerificationServiceAdapter;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.api.ITraceabilityFeignClient;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.mapper.ITraceabilityDtoMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter.OrderPersistenceAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IOrderEntityMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IRestaurantEntityMapper;
@@ -17,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class OrderBeanConfiguration {
+    private final ITraceabilityFeignClient traceabilityFeignClient;
+    private final ITraceabilityDtoMapper traceabilityDtoMapper;
     private final IOrderRepository orderRepository;
     private final IOrderDishRepository orderDishRepository;
     private final IOrderEntityMapper orderEntityMapper;
@@ -36,13 +42,19 @@ public class OrderBeanConfiguration {
     }
 
     @Bean
+    public ITraceabilityApiPort traceabilityApiPort() {
+        return new TraceabilityApiAdapter(traceabilityFeignClient, traceabilityDtoMapper);
+    }
+
+    @Bean
     public IOrderServicePort orderServicePort() {
         return new OrderUseCase(
                 orderPersistencePort(),
                 restaurantBeanConfiguration.restaurantServicePort(),
                 dishBeanConfiguration.dishServicePort(),
                 applicationBeanConfiguration.userApiPort(),
-                verificationServicePort()
+                verificationServicePort(),
+                traceabilityApiPort()
         );
     }
 }

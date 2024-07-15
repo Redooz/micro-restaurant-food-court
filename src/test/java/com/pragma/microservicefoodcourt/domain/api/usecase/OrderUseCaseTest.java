@@ -5,17 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
-import com.pragma.microservicefoodcourt.domain.builder.DishBuilder;
-import com.pragma.microservicefoodcourt.domain.builder.OrderBuilder;
-import com.pragma.microservicefoodcourt.domain.builder.OrderDishBuilder;
-import com.pragma.microservicefoodcourt.domain.builder.RestaurantBuilder;
-import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
+import com.pragma.microservicefoodcourt.domain.builder.*;
 import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
 import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
+import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +44,9 @@ class OrderUseCaseTest {
     @Mock
     private IVerificationServicePort verificationServicePort;
 
+    @Mock
+    private ITraceabilityApiPort traceabilityApiPort;
+
     @InjectMocks
     private OrderUseCase orderUseCase;
 
@@ -74,9 +74,12 @@ class OrderUseCaseTest {
         when(dishServicePort.findDishById(dish1.getId())).thenReturn(dish1);
         when(dishServicePort.findDishById(dish2.getId())).thenReturn(dish2);
         when(orderPersistencePort.findAllOrdersByClientId(client)).thenReturn(new ArrayList<>());
+        when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);
+        when(orderPersistencePort.saveOrder(order)).thenReturn(order);
 
         orderUseCase.saveOrder(order);
 
+        verify(traceabilityApiPort, times(1)).saveTraceability(any(Traceability.class));
         verify(orderPersistencePort, times(1)).saveOrder(order);
     }
 
@@ -171,13 +174,16 @@ class OrderUseCaseTest {
         User employee = new UserBuilder().setDocumentId("employeeId").createUser();
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setRestaurant(restaurant).setStatus(OrderStatus.PENDING).createOrder();
+        Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(java.util.Optional.of(order));
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
+        when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.assignOrderToEmployee(employee, order.getId());
 
+        verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
 
@@ -235,15 +241,18 @@ class OrderUseCaseTest {
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
         VerificationStatus status = VerificationStatus.PENDING;
+        Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
         when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+        when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.finishOrder(employee, order.getId());
 
+        verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
 
@@ -309,15 +318,18 @@ class OrderUseCaseTest {
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.READY).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
         VerificationStatus status = VerificationStatus.APPROVED;
+        Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
         when(verificationServicePort.verifyCode(client.getPhone(), "code")).thenReturn(status);
+        when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.deliverOrder(employee, order.getId(), "code");
 
+        verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
 
@@ -404,12 +416,17 @@ class OrderUseCaseTest {
     void shouldCancelOrderWhenOrderExistsAndOrderStatusIsPending() {
         User client = new UserBuilder().setDocumentId("clientId").createUser();
         Order order = new OrderBuilder().setId(1L).setClientId(client.getDocumentId()).setStatus(OrderStatus.PENDING).createOrder();
+        Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
+
+
 
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);
+        when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.cancelOrder(client, order.getId());
 
+        verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
 

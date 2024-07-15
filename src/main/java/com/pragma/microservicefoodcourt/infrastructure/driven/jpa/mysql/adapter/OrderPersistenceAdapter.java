@@ -28,7 +28,7 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
     private final IRestaurantEntityMapper restaurantEntityMapper;
 
     @Override
-    public void saveOrder(Order order) {
+    public Order saveOrder(Order order) {
         OrderEntity savedOrder = orderRepository.save(orderEntityMapper.toEntity(order));
 
         order.getOrderDishes().forEach(orderDish ->
@@ -38,6 +38,8 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
         List<OrderDishEntity> orderDishEntities = orderEntityMapper.orderDishListToEntityList(order.getOrderDishes());
 
         orderDishRepository.saveAll(orderDishEntities);
+
+        return orderEntityMapper.toModel(savedOrder);
     }
 
     @Override
