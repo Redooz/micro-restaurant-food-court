@@ -4,6 +4,7 @@ import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
+import com.pragma.microservicefoodcourt.domain.builder.TraceabilityBuilder;
 import com.pragma.microservicefoodcourt.domain.builder.UserBuilder;
 import com.pragma.microservicefoodcourt.domain.constant.OrderConstant;
 import com.pragma.microservicefoodcourt.domain.exception.*;
@@ -12,9 +13,11 @@ import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
 import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
+import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +27,15 @@ public class OrderUseCase implements IOrderServicePort {
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
     private final IVerificationServicePort verificationServicePort;
+    private final ITraceabilityApiPort traceabilityApiPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationServicePort notifyServicePort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationServicePort verificationServicePort, ITraceabilityApiPort traceabilityApiPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
         this.userApiPort = userApiPort;
-        this.verificationServicePort = notifyServicePort;
+        this.verificationServicePort = verificationServicePort;
+        this.traceabilityApiPort = traceabilityApiPort;
     }
 
     @Override
@@ -52,7 +57,18 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setDate(LocalDate.now());
         order.setStatus(OrderStatus.PENDING);
-        orderPersistencePort.saveOrder(order);
+        Order savedOrder = orderPersistencePort.saveOrder(order);
+
+        User client = userApiPort.findUserById(savedOrder.getClientId());
+        Traceability traceability = new TraceabilityBuilder()
+                .setOrderId(savedOrder.getId())
+                .setClientId(client.getDocumentId())
+                .setClientEmail(client.getEmail())
+                .setStartTime(LocalDateTime.now())
+                .setNewStatus(savedOrder.getStatus())
+                .createTraceability();
+
+        traceabilityApiPort.saveTraceability(traceability);
     }
 
     @Override
@@ -91,6 +107,15 @@ public class OrderUseCase implements IOrderServicePort {
         order.setStatus(OrderStatus.IN_PROGRESS);
         order.setChefId(loggedEmployee.getDocumentId());
         orderPersistencePort.updateOrder(order);
+
+        Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
+
+        traceability.setEmployeeId(loggedEmployee.getDocumentId());
+        traceability.setEmployeeEmail(loggedEmployee.getEmail());
+        traceability.setLastStatus(traceability.getNewStatus());
+        traceability.setNewStatus(order.getStatus());
+
+        traceabilityApiPort.updateTraceability(orderId, traceability);
     }
 
     @Override
@@ -108,6 +133,14 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setStatus(OrderStatus.READY);
         orderPersistencePort.updateOrder(order);
+
+        Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
+
+        traceability.setLastStatus(traceability.getNewStatus());
+        traceability.setNewStatus(order.getStatus());
+        traceability.setEndTime(LocalDateTime.now());
+
+        traceabilityApiPort.updateTraceability(orderId, traceability);
     }
 
     @Override
@@ -131,6 +164,13 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setStatus(OrderStatus.DELIVERED);
         orderPersistencePort.updateOrder(order);
+
+        Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
+
+        traceability.setLastStatus(traceability.getNewStatus());
+        traceability.setNewStatus(order.getStatus());
+
+        traceabilityApiPort.updateTraceability(orderId, traceability);
     }
 
     @Override
@@ -145,6 +185,13 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setStatus(OrderStatus.CANCELLED);
         orderPersistencePort.updateOrder(order);
+
+        Traceability traceability = traceabilityApiPort.findTraceabilityByOrderId(orderId);
+
+        traceability.setLastStatus(traceability.getNewStatus());
+        traceability.setNewStatus(order.getStatus());
+
+        traceabilityApiPort.updateTraceability(orderId, traceability);
     }
 
     private Order orderValidationForEmployee(User loggedEmployee, Long orderId) {
