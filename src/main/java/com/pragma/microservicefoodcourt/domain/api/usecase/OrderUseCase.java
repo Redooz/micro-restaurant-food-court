@@ -66,6 +66,7 @@ public class OrderUseCase implements IOrderServicePort {
                 .setClientEmail(client.getEmail())
                 .setStartTime(LocalDateTime.now())
                 .setNewStatus(savedOrder.getStatus())
+                .setRestaurantNit(savedOrder.getRestaurant().getNit())
                 .createTraceability();
 
         traceabilityApiPort.saveTraceability(traceability);

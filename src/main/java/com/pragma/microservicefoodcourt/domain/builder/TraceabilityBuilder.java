@@ -16,6 +16,7 @@ public class TraceabilityBuilder {
     private String clientEmail;
     private String clientId;
     private String employeeEmail;
+    private String restaurantNit;
 
     public TraceabilityBuilder setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
@@ -67,7 +68,12 @@ public class TraceabilityBuilder {
         return this;
     }
 
+    public TraceabilityBuilder setRestaurantNit(String restaurantNit) {
+        this.restaurantNit = restaurantNit;
+        return this;
+    }
+
     public Traceability createTraceability() {
-        return new Traceability(startTime, endTime, employeeId, id, orderId, lastStatus, newStatus, clientEmail, clientId, employeeEmail);
+        return new Traceability(startTime, endTime, employeeId, id, orderId, lastStatus, newStatus, clientEmail, clientId, employeeEmail, restaurantNit);
     }
 }

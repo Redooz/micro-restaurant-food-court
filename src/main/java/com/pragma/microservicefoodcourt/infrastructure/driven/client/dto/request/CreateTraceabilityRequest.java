@@ -11,6 +11,8 @@ public record CreateTraceabilityRequest(
 
         String clientEmail,
 
+        String restaurantNit,
+
         LocalDateTime startTime,
 
         OrderStatus newStatus
