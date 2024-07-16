@@ -1,14 +1,12 @@
 package com.pragma.microservicefoodcourt.configuration;
 
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
-import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
+import com.pragma.microservicefoodcourt.domain.spi.IVerificationApiPort;
 import com.pragma.microservicefoodcourt.domain.api.usecase.OrderUseCase;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
-import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
-import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TraceabilityApiAdapter;
-import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TwilioVerificationServiceAdapter;
-import com.pragma.microservicefoodcourt.infrastructure.driven.client.api.ITraceabilityFeignClient;
-import com.pragma.microservicefoodcourt.infrastructure.driven.client.mapper.ITraceabilityDtoMapper;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.adapter.TwilioVerificationApiAdapter;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.api.IUserFeignClient;
+import com.pragma.microservicefoodcourt.infrastructure.driven.client.api.IVerificationFeignClient;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.adapter.OrderPersistenceAdapter;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IOrderEntityMapper;
 import com.pragma.microservicefoodcourt.infrastructure.driven.jpa.mysql.mapper.IRestaurantEntityMapper;
@@ -28,6 +26,7 @@ public class OrderBeanConfiguration {
     private final RestaurantBeanConfiguration restaurantBeanConfiguration;
     private final DishBeanConfiguration dishBeanConfiguration;
     private final ApplicationBeanConfiguration applicationBeanConfiguration;
+    private final IVerificationFeignClient verificationFeignClient;
 
     @Bean
     public IOrderPersistencePort orderPersistencePort() {
@@ -35,8 +34,8 @@ public class OrderBeanConfiguration {
     }
 
     @Bean
-    public IVerificationServicePort verificationServicePort() {
-        return new TwilioVerificationServiceAdapter();
+    public IVerificationApiPort verificationServicePort() {
+        return new TwilioVerificationApiAdapter(verificationFeignClient);
     }
 
     @Bean
