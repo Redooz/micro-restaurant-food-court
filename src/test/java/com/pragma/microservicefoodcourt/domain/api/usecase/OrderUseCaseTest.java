@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
+import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.spi.IVerificationApiPort;
 import com.pragma.microservicefoodcourt.domain.builder.*;
 import com.pragma.microservicefoodcourt.domain.exception.*;
@@ -231,13 +232,16 @@ class OrderUseCaseTest {
 
     @Test
     @DisplayName("Should finish order when order exists")
-    void shouldFinishOrderWhenOrderExistsAndVerificationStatusIsPending() {
+    void shouldFinishOrderWhenOrderExists() {
         User owner = new UserBuilder().setDocumentId("ownerId").createUser();
         Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
         User employee = new UserBuilder().setDocumentId("employeeId").createUser();
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
-        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
+        User client = new UserBuilder()
+                .setDocumentId(order.getClientId())
+                .setPhone("+1123456789")
+                .createUser();
         Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
@@ -248,7 +252,7 @@ class OrderUseCaseTest {
 
         orderUseCase.finishOrder(employee, order.getId());
 
-        verify(verificationApiPort, times(1)).verifyCode(client.getPhone(), "code");
+        verify(verificationApiPort, times(1)).sendCode(client.getPhone(), NotificationMethod.SMS);
         verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
