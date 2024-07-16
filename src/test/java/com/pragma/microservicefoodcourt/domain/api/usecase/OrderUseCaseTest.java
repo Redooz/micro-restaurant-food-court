@@ -8,9 +8,7 @@ import com.pragma.microservicefoodcourt.domain.spi.IVerificationApiPort;
 import com.pragma.microservicefoodcourt.domain.builder.*;
 import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
-import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
-import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
@@ -42,7 +40,7 @@ class OrderUseCaseTest {
     private IUserApiPort userApiPort;
 
     @Mock
-    private IVerificationApiPort verificationServicePort;
+    private IVerificationApiPort verificationApiPort;
 
     @Mock
     private ITraceabilityApiPort traceabilityApiPort;
@@ -232,7 +230,7 @@ class OrderUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should finish order when order exists and verification status is pending")
+    @DisplayName("Should finish order when order exists")
     void shouldFinishOrderWhenOrderExistsAndVerificationStatusIsPending() {
         User owner = new UserBuilder().setDocumentId("ownerId").createUser();
         Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
@@ -240,18 +238,17 @@ class OrderUseCaseTest {
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.PENDING;
         Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
         when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.finishOrder(employee, order.getId());
 
+        verify(verificationApiPort, times(1)).verifyCode(client.getPhone(), "code");
         verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
@@ -265,13 +262,11 @@ class OrderUseCaseTest {
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.PENDING;
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
 
         Long orderId = order.getId();
         assertThrows(
@@ -283,33 +278,7 @@ class OrderUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should not finish order when verification status is not pending")
-    void shouldNotFinishOrderWhenVerificationStatusIsNotPending() {
-        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
-        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
-        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
-        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
-        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.IN_PROGRESS).createOrder();
-        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.FAILED;
-
-        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
-        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
-        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
-        when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
-
-        Long orderId = order.getId();
-        assertThrows(
-                VerificationStatusException.class,
-                () -> orderUseCase.finishOrder(employee, orderId)
-        );
-
-        verify(orderPersistencePort, times(0)).updateOrder(order);
-    }
-
-    @Test
-    @DisplayName("Should deliver order when order exists and verification status is approved")
+    @DisplayName("Should deliver order when order exists")
     void shouldDeliverOrderWhenOrderExistsAndVerificationStatusIsApproved() {
         User owner = new UserBuilder().setDocumentId("ownerId").createUser();
         Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
@@ -317,18 +286,17 @@ class OrderUseCaseTest {
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.READY).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.APPROVED;
         Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.verifyCode(client.getPhone(), "code")).thenReturn(status);
         when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.deliverOrder(employee, order.getId(), "code");
 
+        verify(verificationApiPort, times(1)).verifyCode(client.getPhone(), "code");
         verify(traceabilityApiPort, times(1)).updateTraceability(order.getId(), traceability);
         verify(orderPersistencePort, times(1)).updateOrder(order);
     }
@@ -342,43 +310,15 @@ class OrderUseCaseTest {
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.READY).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.APPROVED;
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.verifyCode(client.getPhone(), "code")).thenReturn(status);
 
         Long orderId = order.getId();
         assertThrows(
                 NoDataFoundException.class,
-                () -> orderUseCase.deliverOrder(employee, orderId, "code")
-        );
-
-        verify(orderPersistencePort, times(0)).updateOrder(order);
-    }
-
-    @Test
-    @DisplayName("Should not deliver order when verification status is not approved")
-    void shouldNotDeliverOrderWhenVerificationStatusIsNotApproved() {
-        User owner = new UserBuilder().setDocumentId("ownerId").createUser();
-        Restaurant restaurant = new RestaurantBuilder().setNit("restaurantId").setOwnerId(owner.getDocumentId()).createRestaurant();
-        User employee = new UserBuilder().setDocumentId("employeeId").createUser();
-        User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
-        Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.READY).createOrder();
-        User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.FAILED;
-
-        when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
-        when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
-        when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
-        when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.verifyCode(client.getPhone(), "code")).thenReturn(status);
-
-        Long orderId = order.getId();
-        assertThrows(
-                VerificationStatusException.class,
                 () -> orderUseCase.deliverOrder(employee, orderId, "code")
         );
 
@@ -394,13 +334,11 @@ class OrderUseCaseTest {
         User foundEmployee = new UserBuilder().setDocumentId(employee.getDocumentId()).setBoss(owner).createUser();
         Order order = new OrderBuilder().setId(1L).setRestaurant(restaurant).setStatus(OrderStatus.PENDING).createOrder();
         User client = new UserBuilder().setDocumentId(order.getClientId()).createUser();
-        VerificationStatus status = VerificationStatus.APPROVED;
 
         when(restaurantServicePort.findRestaurantByNit(order.getRestaurant().getNit())).thenReturn(restaurant);
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.verifyCode(client.getPhone(), "code")).thenReturn(status);
 
         Long orderId = order.getId();
         assertThrows(
@@ -417,8 +355,6 @@ class OrderUseCaseTest {
         User client = new UserBuilder().setDocumentId("clientId").createUser();
         Order order = new OrderBuilder().setId(1L).setClientId(client.getDocumentId()).setStatus(OrderStatus.PENDING).createOrder();
         Traceability traceability = new TraceabilityBuilder().setOrderId(order.getId()).createTraceability();
-
-
 
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(client.getDocumentId())).thenReturn(client);

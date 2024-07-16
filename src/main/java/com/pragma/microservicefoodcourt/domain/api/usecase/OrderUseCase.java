@@ -25,15 +25,15 @@ public class OrderUseCase implements IOrderServicePort {
     private final IRestaurantServicePort restaurantServicePort;
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
-    private final IVerificationApiPort verificationServicePort;
+    private final IVerificationApiPort verificationApiPort;
     private final ITraceabilityApiPort traceabilityApiPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationApiPort verificationServicePort, ITraceabilityApiPort traceabilityApiPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationApiPort verificationApiPort, ITraceabilityApiPort traceabilityApiPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
         this.userApiPort = userApiPort;
-        this.verificationServicePort = verificationServicePort;
+        this.verificationApiPort = verificationApiPort;
         this.traceabilityApiPort = traceabilityApiPort;
     }
 
@@ -124,7 +124,7 @@ public class OrderUseCase implements IOrderServicePort {
         Order order = orderValidationForEmployee(loggedEmployee, orderId);
         User client = userApiPort.findUserById(order.getClientId());
 
-        verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS);
+        verificationApiPort.sendCode(client.getPhone(), NotificationMethod.SMS);
 
         order.setStatus(OrderStatus.READY);
 
@@ -149,7 +149,7 @@ public class OrderUseCase implements IOrderServicePort {
             );
         }
 
-        verificationServicePort.verifyCode(client.getPhone(), code);
+        verificationApiPort.verifyCode(client.getPhone(), code);
 
         order.setStatus(OrderStatus.DELIVERED);
 
