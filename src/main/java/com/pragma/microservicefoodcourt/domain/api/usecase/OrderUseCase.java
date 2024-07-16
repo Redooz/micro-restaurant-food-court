@@ -1,7 +1,7 @@
 package com.pragma.microservicefoodcourt.domain.api.usecase;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
-import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
+import com.pragma.microservicefoodcourt.domain.spi.IVerificationApiPort;
 import com.pragma.microservicefoodcourt.domain.api.IOrderServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
 import com.pragma.microservicefoodcourt.domain.builder.TraceabilityBuilder;
@@ -11,7 +11,6 @@ import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
 import com.pragma.microservicefoodcourt.domain.model.enums.NotificationMethod;
 import com.pragma.microservicefoodcourt.domain.model.enums.OrderStatus;
-import com.pragma.microservicefoodcourt.domain.model.enums.VerificationStatus;
 import com.pragma.microservicefoodcourt.domain.spi.IOrderPersistencePort;
 import com.pragma.microservicefoodcourt.domain.spi.ITraceabilityApiPort;
 import com.pragma.microservicefoodcourt.domain.spi.IUserApiPort;
@@ -26,10 +25,10 @@ public class OrderUseCase implements IOrderServicePort {
     private final IRestaurantServicePort restaurantServicePort;
     private final IDishServicePort dishServicePort;
     private final IUserApiPort userApiPort;
-    private final IVerificationServicePort verificationServicePort;
+    private final IVerificationApiPort verificationServicePort;
     private final ITraceabilityApiPort traceabilityApiPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationServicePort verificationServicePort, ITraceabilityApiPort traceabilityApiPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IRestaurantServicePort restaurantServicePort, IDishServicePort dishServicePort, IUserApiPort userApiPort, IVerificationApiPort verificationServicePort, ITraceabilityApiPort traceabilityApiPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantServicePort = restaurantServicePort;
         this.dishServicePort = dishServicePort;
@@ -60,6 +59,7 @@ public class OrderUseCase implements IOrderServicePort {
         Order savedOrder = orderPersistencePort.saveOrder(order);
 
         User client = userApiPort.findUserById(savedOrder.getClientId());
+
         Traceability traceability = new TraceabilityBuilder()
                 .setOrderId(savedOrder.getId())
                 .setClientId(client.getDocumentId())
@@ -124,13 +124,7 @@ public class OrderUseCase implements IOrderServicePort {
         Order order = orderValidationForEmployee(loggedEmployee, orderId);
         User client = userApiPort.findUserById(order.getClientId());
 
-        VerificationStatus status = verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS);
-
-        if (status != VerificationStatus.PENDING) {
-            throw new VerificationStatusException(
-                    String.format(OrderConstant.SENT_VERIFICATION_STATUS_ERROR, status)
-            );
-        }
+        verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS);
 
         order.setStatus(OrderStatus.READY);
 
@@ -155,13 +149,7 @@ public class OrderUseCase implements IOrderServicePort {
             );
         }
 
-        VerificationStatus status = verificationServicePort.verifyCode(client.getPhone(), code);
-
-        if (status != VerificationStatus.APPROVED) {
-            throw new VerificationStatusException(
-                    String.format(OrderConstant.VERIFICATION_STATUS_ERROR, orderId, status)
-            );
-        }
+        verificationServicePort.verifyCode(client.getPhone(), code);
 
         order.setStatus(OrderStatus.DELIVERED);
 

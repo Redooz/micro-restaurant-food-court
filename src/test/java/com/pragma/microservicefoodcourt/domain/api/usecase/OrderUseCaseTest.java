@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.pragma.microservicefoodcourt.domain.api.IDishServicePort;
 import com.pragma.microservicefoodcourt.domain.api.IRestaurantServicePort;
-import com.pragma.microservicefoodcourt.domain.api.IVerificationServicePort;
+import com.pragma.microservicefoodcourt.domain.spi.IVerificationApiPort;
 import com.pragma.microservicefoodcourt.domain.builder.*;
 import com.pragma.microservicefoodcourt.domain.exception.*;
 import com.pragma.microservicefoodcourt.domain.model.*;
@@ -42,7 +42,7 @@ class OrderUseCaseTest {
     private IUserApiPort userApiPort;
 
     @Mock
-    private IVerificationServicePort verificationServicePort;
+    private IVerificationApiPort verificationServicePort;
 
     @Mock
     private ITraceabilityApiPort traceabilityApiPort;
@@ -247,7 +247,7 @@ class OrderUseCaseTest {
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
         when(traceabilityApiPort.findTraceabilityByOrderId(order.getId())).thenReturn(traceability);
 
         orderUseCase.finishOrder(employee, order.getId());
@@ -271,7 +271,7 @@ class OrderUseCaseTest {
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.empty());
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
 
         Long orderId = order.getId();
         assertThrows(
@@ -297,7 +297,7 @@ class OrderUseCaseTest {
         when(userApiPort.findUserById(employee.getDocumentId())).thenReturn(foundEmployee);
         when(orderPersistencePort.findOrderById(order.getId())).thenReturn(Optional.of(order));
         when(userApiPort.findUserById(order.getClientId())).thenReturn(client);
-        when(verificationServicePort.notifyUser(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
+        when(verificationServicePort.sendCode(client.getPhone(), NotificationMethod.SMS)).thenReturn(status);
 
         Long orderId = order.getId();
         assertThrows(
